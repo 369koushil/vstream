@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  image         String   @default("")
+  streamId      String?  @unique
+  stream        Stream?  @relation(fields: [streamId], references: [id], name: "UserStream")
+  hostedStreams Stream[] @relation(name: "HostStream")
+  videos        Video[]  @relation(name: "hostvideos")
+}
+
+model Stream {
+  id     String  @id @default(uuid())
+  title  String
+  users  User[]  @relation(name: "UserStream") // Users in the stream
+  hostId String
+  host   User    @relation(fields: [hostId], references: [id], name: "HostStream") // Relation name added
+  videos Video[] @relation(name: "streamvideos")
+}
+
+model Video {
+  id        String @id @default(uuid())
+  title     String @default("Demo")
+  smg       String @default("")
+  big       String @default("")
+  extractId String @unique
+  streamId  String
+  stream    Stream @relation(fields: [streamId], references: [id], name: "streamvideos")
+  hostId    String
+  host      User   @relation(fields: [hostId], references: [id], name: "hostvideos")
+}
