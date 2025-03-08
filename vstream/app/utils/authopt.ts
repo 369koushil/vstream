@@ -39,6 +39,7 @@ export const authOptions: NextAuthOptions = {
                 if (dbUser) {
                   token.userId = dbUser.id;
                   token.streamId = dbUser.streamId ?? null;
+                  token.host=null;
                   token.hostId=null;
                 }
 
@@ -47,6 +48,7 @@ export const authOptions: NextAuthOptions = {
               if (trigger === "update") {
                 token.streamId = session.streamId as string ?? null;
                 token.hostId = session.hostId as string ?? null;
+                token.host=session.host as string ??null;
             }
             console.log(token)
               return token;
@@ -57,6 +59,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.userId as string
                 session.user.streamId=token.streamId as string|| null
                 session.user.hostId=token.hostId as string|| null
+                session.user.host=token.host as string|| null
             }
             return session
         },

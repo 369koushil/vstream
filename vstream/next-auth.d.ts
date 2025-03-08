@@ -6,6 +6,7 @@ declare module 'next-auth'{
             id:String;
             streamId:string|null;
             hostId:string|null;
+            host:string|null;
         }&DefaultSession['user']
      }
 }

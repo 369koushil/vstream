@@ -11,7 +11,7 @@ const redis = new Redis({ host: "localhost", port: 6379 });
 
 redis.ping().then((res) => console.log("Redis connected:", res));
 
-const SCORE_MULTIPLIER = 1e9; // Makes votes more important than time
+const SCORE_MULTIPLIER = 1e9;
 
 io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
@@ -29,6 +29,11 @@ io.on("connection", (socket) => {
     });
 
     socket.on("join room", async (streamId) => {
+
+        const roomSize = io.sockets.adapter.rooms.get(streamId)?.size || 0;
+        await redis.set(`room:${streamId}`,roomSize);
+        io.to(streamId).emit("roomMemberCount", roomSize);
+
         socket.join(streamId);
         try {
             let queue = await redis.zrevrange(`stream:${streamId}:queue`, 0, -1, "WITHSCORES");
@@ -87,26 +92,35 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("vote", async ({ streamId, videoId, voteType }) => {
+    socket.on("vote", async ({ streamId, videoId, voteType, userId }) => {
         try {
-            if (!streamId || !videoId || !["upvote", "downvote"].includes(voteType)) return;
-
+            if (!streamId || !videoId || !userId || !["upvote", "downvote"].includes(voteType)) return;
+    
+            const userVoteKey = `stream:${streamId}:video:${videoId}:votes`;
+            const alreadyVoted = await redis.sismember(userVoteKey, userId);
+    
+            if (alreadyVoted) {
+                socket.emit("vote_error", { message: "You have already voted for this video." });
+                return;
+            }
+    
+            // Allow the vote
+            await redis.sadd(userVoteKey, userId);
+    
             const voteValue = voteType === "upvote" ? 1 : -1;
             const queue = await redis.zrange(`stream:${streamId}:queue`, 0, -1);
-
+    
             let videoData = queue.find((video) => JSON.parse(video).id === videoId);
             if (!videoData) return;
-
+    
             let parsedVideo = JSON.parse(videoData);
-           
-
-            parsedVideo.votes = (parsedVideo.votes || 0) + voteValue;
-            let newScore = parsedVideo.timestamp + parsedVideo.votes * 1e14; // Updated formula
-            
-
+            parsedVideo.votes = Math.max((parsedVideo.votes || 0) + voteValue, 0); // Prevent negative votes
+    
+            let newScore = parsedVideo.timestamp + parsedVideo.votes * 1e14;
+    
             await redis.zrem(`stream:${streamId}:queue`, videoData);
             await redis.zadd(`stream:${streamId}:queue`, newScore, JSON.stringify(parsedVideo));
-
+    
             const updatedQueue = await redis.zrevrange(`stream:${streamId}:queue`, 0, -1, "WITHSCORES");
             const parsedUpdatedQueue = formatQueue(updatedQueue);
             io.to(streamId).emit("updated_vqueue", parsedUpdatedQueue);
@@ -114,10 +128,28 @@ io.on("connection", (socket) => {
             console.error("Error processing vote:", error);
         }
     });
+    
 
-    socket.on("disconnect", () => {
+  
+     socket.on("leave_room",async(streamId)=>{
+        
+        const rooms = Array.from(socket.rooms).filter((room) => room !== socket.id);
+    
+        for (const streamId of rooms) {
+            const roomSize = io.sockets.adapter.rooms.get(streamId)?.size || 0;
+            await redis.set(`room:${streamId}`, roomSize);
+            io.to(streamId).emit("roomMemberCount", roomSize);
+        }
+        io.to(streamId).emit("roomMemberCount",3);
+     })
+    
+
+    socket.on("disconnect", async () => {
         console.log("User disconnected:", socket.id);
+
+        
     });
+    
 });
 
 const PORT = process.env.WS_PORT || 4000;
@@ -139,3 +171,6 @@ const formatQueue = (queue) => {
     }
     return formatted;
 };
+
+
+

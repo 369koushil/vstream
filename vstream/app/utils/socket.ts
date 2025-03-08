@@ -1,4 +1,7 @@
 import io from "socket.io-client";
+import { VideoItem } from "./Types";
+import  { type YouTubePlayer } from "react-youtube"
+
 
 export const socket = io("http://localhost:4000");
 
@@ -9,11 +12,12 @@ export const initSocConn = (streamId: string) => {
     socket.emit("create_stream", streamId);
 };
 
-export const joinRoom = (roomId: string) => {
+export const joinRoom = (roomId: string)=>{
     socket.emit("join room", roomId);
 };
 
-export const addVideoQueue = (obj: any) => {
+
+export const addVideoQueue = (obj: VideoItem) => {
     socket.emit("update_vqueue", obj);
 };
 
@@ -24,21 +28,12 @@ export const leaveRoom = () => {
     socket.off("init_vqueue");
 };
 
-// export const getUpdatedQueue = (setVideoData: (data: any) => void) => {
-//     socket.off("updated_vqueue"); // ✅ Prevent duplicate listeners
-//     socket.on("updated_vqueue", (data: any) => {
-//         if (Array.isArray(data)) {
-//             console.log(data)
-//             setVideoData(data);
-//         }
-//     });
-// };
 
 
 
-export const getInitQueue = (setVideoData: (data: any) => void) => {
-    socket.off("init_vqueue"); // ✅ Prevent duplicate listeners
-    socket.on("init_vqueue", (data: any) => {
+export const getInitQueue = (setVideoData: (data:VideoItem[]) => void) => {
+    socket.off("init_vqueue"); 
+    socket.on("init_vqueue", (data: VideoItem[]) => {
         if (Array.isArray(data)) {
             console.log(data)
             setVideoData(data);
@@ -51,7 +46,7 @@ export const voteVideo = (streamId: string, videoId: string, voteType: "upvote" 
 };
 
 
-export const controlByHost=(action:any,streamId:any)=>{
+export const controlByHost=(action:string,streamId:string)=>{
     socket.emit("video_control", { action, streamId });
 }
 
@@ -59,7 +54,7 @@ export const removeVideoControllers=()=>{
     socket.off("video_control")
 }
 
-export const uVControlsListner=(playerRef:React.RefObject<any>,isHost:boolean)=>{
+export const uVControlsListner=(playerRef:React.RefObject<YouTubePlayer>,isHost:boolean)=>{
   socket.on("video_control", (action:string) => {
               if (!isHost && playerRef.current) {
                   if (action === "play") playerRef.current.playVideo();
@@ -70,49 +65,38 @@ export const uVControlsListner=(playerRef:React.RefObject<any>,isHost:boolean)=>
 }
 
 
-export const videoCompleted=(streamId:string,finishedVideo:any)=>{
+export const videoCompleted=(streamId:string,finishedVideo:VideoItem)=>{
     socket.emit("videoCompleted", { streamId, videoId: finishedVideo.id });
 
 }
 
-// export const getUpdatedQueue2= (
-//     setVideoData: (data:any) => void, 
-//     currentVideoId: string | null
-// ) => {
-//     socket.off("updated_vqueue");
-//     socket.on("updated_vqueue", (data:any) => {
-//         if (Array.isArray(data)) {
-//             setVideoData((prevData: any) => {
-//                 if (!currentVideoId) return data; // If no video is playing, update normally
-
-//                 const currentVideo = prevData.find((video:any) => video.id === currentVideoId);
-//                 if (!currentVideo) return data; // If current video is missing, update normally
-                
-//                 return [
-//                     currentVideo, // Keep the currently playing video unchanged
-//                     ...data.filter(video => video.id !== currentVideoId) // Update the rest of the queue
-//                 ];
-//             });
-//         }
-//     });
-// };
 
 
-export const getUpdatedQueue= (setVideoQueue: any, getCurrentVideo: () =>any) => {
+
+
+
+export const getUpdatedQueue = (
+    setVideoQueue: (data: VideoItem[]) => void,
+    getCurrentVideo: () => VideoItem|undefined
+  ) => {
     socket.off("updated_vqueue");
-    socket.on("updated_vqueue", (data: any) => {
-        if (Array.isArray(data)) {
-            setVideoQueue((prevQueue: any) => {
-                const currentVideo = getCurrentVideo();
-                if (!currentVideo) return data; // If no video is playing, update normally
-                
-                return [
-                    currentVideo,
-                    ...data.filter(video => video.id !== currentVideo.id)
-                ];
-            });
+    socket.on("updated_vqueue", (data: VideoItem[]) => {
+      if (Array.isArray(data)) {
+        const currentVideo = getCurrentVideo();
+        
+        if (!currentVideo) {
+          setVideoQueue(data);
+          return;
         }
+  
+        setVideoQueue([
+          currentVideo,
+          ...data.filter((video) => video.id !== currentVideo.id),
+        ]);
+      }
     });
-};
+  };
+  
+
 
 

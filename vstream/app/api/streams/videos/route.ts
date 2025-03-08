@@ -10,7 +10,8 @@ import { v4 as uuidv4 } from "uuid";
 
 const addVideoSchema = z.object({
     url: z.string(),
-    streamId:z.string()
+    streamId:z.string(),
+    addedBy:z.string().default("user")
 })
 
 function extractVideoId(url: string): string | null {
@@ -34,8 +35,6 @@ export async function POST(req: NextRequest) {
                 errors: parsedBody.error.format()
             }, { status: 400 });
         }  
-
-        
         const extractedId=extractVideoId(body.url)
         console.log(extractedId)
         const res = await youtube.GetVideoDetails(extractedId)
@@ -50,6 +49,7 @@ export async function POST(req: NextRequest) {
                 hostId:session!.user.id.toString(),
                 smg:thumbnails[1].url??"https://imgs.search.brave.com/p-yZANTOLgHYlaDNBQ5r7caAKbb7fRxZuTL2EHy5uDs/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9mYWtl/aW1nLnBsLzYwMHg0/MDA.jpeg",
                 big:thumbnails[thumbnails.length-1].url??"https://imgs.search.brave.com/p-yZANTOLgHYlaDNBQ5r7caAKbb7fRxZuTL2EHy5uDs/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9mYWtl/aW1nLnBsLzYwMHg0/MDA.jpeg",
+                addedBy:body.addedBy
             }
         
          return NextResponse.json({streamVideos:data},{status:201})
