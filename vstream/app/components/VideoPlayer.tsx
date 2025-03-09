@@ -44,7 +44,7 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
   }
 
   return (
-    <div className="flex flex-col w-full max-w-4xl mx-auto bg-[#09090b] border border-purple-500/20 dark:border-purple-500/20 shadow-lg overflow-hidden">
+    <div className="flex flex-col w-full max-w-4xl mx-auto bg-[#09090b] border border-purple-500/20 dark:border-purple-500/20 shadow-lg overflow-hidden select-none">
       <div className="relative">
         <div className="aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
           {videoId ? (
@@ -75,15 +75,15 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
           <div className="flex items-center justify-center gap-4">
             <Button
               onClick={playVideo}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+              className="px-6 py-2 bg-purple-600 rounded-2xl hover:bg-purple-700 text-white shadow-md transition-all duration-300 flex items-center gap-2"
             >
-              <Play className="h-4 w-4 text-purple-300" />
+              <Play className="h-4 w-4  text-purple-300" />
               Play
             </Button>
 
             <Button
               onClick={pauseVideo}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-2xl text-white  shadow-md transition-all duration-300 flex items-center gap-2"
             >
               <Pause className="h-4 w-4 text-blue-300" />
               Pause
@@ -91,7 +91,7 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
 
             <Button
               onClick={stopVideo}
-              className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+              className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-2xl text-white shadow-md transition-all duration-300 flex items-center gap-2"
             >
               <Square className="h-4 w-4 text-red-300" />
               Stop

@@ -9,10 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { voteVideo } from "../utils/socket"
 import { VideoItem } from "../utils/Types"
+import { useSession } from "next-auth/react"
 
-export default function VideoQueue({ videoData }: { videoData: VideoItem[] }) {
+export default function VideoQueue({ videoData }: { videoData: VideoItem[]}) {
   const [prevVideoData, setPrevVideoData] = useState<VideoItem[]>([])
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  const session=useSession()
 
   useEffect(() => {
     if (prevVideoData.length > 0) {
@@ -28,15 +30,17 @@ export default function VideoQueue({ videoData }: { videoData: VideoItem[] }) {
   }, [videoData])
 
   const handleVote = (streamId: string, id: string, type: "upvote" | "downvote") => {
-    voteVideo(streamId, id, type)
+    console.log(session.data?.user.id)
+    console.log(streamId,id,type,session.data?.user.id)
+    voteVideo(streamId, id, type,session.data?.user.id as string)
   }
 
   return (
-    <Card className="h-full bg-[#09090b] border-purple-500/20 dark:border-purple-500/20 overflow-hidden relative">
+    <Card className="h-full select-none bg-[#09090b] border-purple-500/20 dark:border-purple-500/20 overflow-hidden relative">
   <CardHeader className="absolute top-0 pt-2 left-0 w-full h-16 bg-[#101423] rounded-t-lg flex items-center px-4">
     <CardTitle className="flex justify-between items-center text-lg w-full">
-      Queue{" "}
-      <Badge variant="secondary" className="bg-purple-500/20 text-foreground">
+      Video Queue{" "}
+      <Badge variant="secondary" className="bg-purple-500/20 rounded-2xl text-foreground">
         {videoData.length} videos
       </Badge>
     </CardTitle>
@@ -49,7 +53,7 @@ export default function VideoQueue({ videoData }: { videoData: VideoItem[] }) {
           videoData.map((video) => (
             <div
               key={video.id}
-              className="flex gap-3 p-3 rounded-lg border border-purple-500/10 bg-[#09090b] hover:bg-accent/5 transition-colors"
+              className="flex gap-3 p-3 rounded-lg  border border-purple-500/10 bg-[#09090b] hover:bg-accent/5 transition-colors"
             >
               <div className="relative flex-shrink-0 w-24 h-16 rounded overflow-hidden">
                 <Image

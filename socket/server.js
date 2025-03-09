@@ -44,6 +44,29 @@ io.on("connection", (socket) => {
         }
     });
 
+
+    socket.on("endRoom", async(streamId) => {
+        io.to(streamId).emit("roomClosed"); 
+        io.socketsLeave(streamId);
+        console.log(`Room ${streamId} has ended`);
+
+        try {
+            // Delete the queue and room info
+            await redis.del(`stream:${streamId}:queue`);
+            await redis.del(`room:${streamId}`);
+    
+            // Find all vote keys for the room and delete them
+            const voteKeys = await redis.keys(`stream:${streamId}:video:*:votes`);
+            if (voteKeys.length > 0) {
+                await redis.del(...voteKeys);
+            }
+    
+            console.log(`Deleted all data for stream: ${streamId}`);
+        } catch (error) {
+            console.error("Error deleting room data:", error);
+        }
+    });
+
     socket.on("update_vqueue", async (data) => {
         try {
             const { streamVideos } = data;
@@ -94,27 +117,40 @@ io.on("connection", (socket) => {
 
     socket.on("vote", async ({ streamId, videoId, voteType, userId }) => {
         try {
-            if (!streamId || !videoId || !userId || !["upvote", "downvote"].includes(voteType)) return;
+            console.log("voting server side");
     
-            const userVoteKey = `stream:${streamId}:video:${videoId}:votes`;
-            const alreadyVoted = await redis.sismember(userVoteKey, userId);
-    
-            if (alreadyVoted) {
-                socket.emit("vote_error", { message: "You have already voted for this video." });
+            if (!streamId || !videoId || !userId || !["upvote", "downvote"].includes(voteType)) {
+                console.log("Invalid vote parameters:", streamId, videoId, userId, voteType);
                 return;
             }
     
-            // Allow the vote
-            await redis.sadd(userVoteKey, userId);
+            const userVoteKey = `stream:${streamId}:video:${videoId}:votes`;
+            const previousVote = await redis.hget(userVoteKey, userId); // Get previous vote type
     
-            const voteValue = voteType === "upvote" ? 1 : -1;
+            if (previousVote === voteType) {
+                console.log("User has already cast this vote");
+                socket.emit("vote_error", { message: `You have already ${voteType}d this video.` });
+                return;
+            }
+    
+            // Adjust vote count
+            const voteChange = 
+                 // If switching vote, change by 2 (undo + new vote)
+                (voteType === "upvote" ? 1 : -1); // If first-time voting, change by 1
+    
+            await redis.hset(userVoteKey, userId, voteType); // Store the user's vote
+    
+            // Fetch the queue
             const queue = await redis.zrange(`stream:${streamId}:queue`, 0, -1);
-    
             let videoData = queue.find((video) => JSON.parse(video).id === videoId);
-            if (!videoData) return;
+    
+            if (!videoData) {
+                console.log("Video data not found");
+                return;
+            }
     
             let parsedVideo = JSON.parse(videoData);
-            parsedVideo.votes = Math.max((parsedVideo.votes || 0) + voteValue, 0); // Prevent negative votes
+            parsedVideo.votes = Math.max((parsedVideo.votes || 0) + voteChange, 0); // Prevent negative votes
     
             let newScore = parsedVideo.timestamp + parsedVideo.votes * 1e14;
     
@@ -128,6 +164,8 @@ io.on("connection", (socket) => {
             console.error("Error processing vote:", error);
         }
     });
+    
+    
     
 
   

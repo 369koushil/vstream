@@ -23,14 +23,6 @@ export const addVideoQueue = (obj: VideoItem) => {
 
 
 
-export const leaveRoom = () => {
-    socket.off("updated_vqueue");
-    socket.off("init_vqueue");
-};
-
-
-
-
 export const getInitQueue = (setVideoData: (data:VideoItem[]) => void) => {
     socket.off("init_vqueue"); 
     socket.on("init_vqueue", (data: VideoItem[]) => {
@@ -41,8 +33,8 @@ export const getInitQueue = (setVideoData: (data:VideoItem[]) => void) => {
     });
 };
 
-export const voteVideo = (streamId: string, videoId: string, voteType: "upvote" | "downvote") => {
-    socket.emit("vote", { streamId, videoId, voteType });
+export const voteVideo = (streamId: string, videoId: string, voteType: "upvote" | "downvote",userId:string) => {
+    socket.emit("vote", { streamId, videoId, voteType ,userId});
 };
 
 
@@ -71,8 +63,15 @@ export const videoCompleted=(streamId:string,finishedVideo:VideoItem)=>{
 }
 
 
+export const getUCnt=(setcnt:any)=>{
+    socket.on("roomMemberCount",(data:number)=>{
+        setcnt((prev:any)=>prev+1)
+    })
+}
 
-
+export const endRoom=(streamId:string)=>{
+    socket.emit("endRoom",streamId)
+}
 
 
 export const getUpdatedQueue = (
@@ -100,3 +99,9 @@ export const getUpdatedQueue = (
 
 
 
+export const cleanUpSockets=()=>{
+    socket.off("updated_vqueue")
+    socket.off("roomMemberCount")
+    socket.off("video_control")
+    socket.off("init_vqueue")
+}

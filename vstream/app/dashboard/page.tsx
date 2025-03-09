@@ -6,10 +6,10 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { initSocConn, joinRoom } from "../utils/socket";
 import { motion } from "framer-motion";
-import { Music, Plus, Users, ArrowRight, Radio, Headphones, Sparkles } from 'lucide-react';
+import { Music, Plus, Users, ArrowRight, Radio, Sparkles } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Page = () => {
@@ -45,14 +45,14 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-3xl"
       >
-        <Card className="bg-black/40 backdrop-blur-md border-purple-500/20 shadow-xl shadow-purple-500/10">
+        <Card className="bg-purple-500/10  backdrop-blur-md border-purple-500/20 shadow-xl rounded-2xl shadow-purple-500/10 select-none">
           <CardHeader className="text-center pb-2">
             <motion.div
               initial={{ scale: 0.9 }}
@@ -61,11 +61,11 @@ const Page = () => {
               className="mx-auto mb-2"
             >
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mx-auto">
-                <Headphones className="w-8 h-8 text-white" />
+                <Radio className="w-8 h-8 text-white" />
               </div>
             </motion.div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-              Music Stream Dashboard
+              VStream Dashboard
             </CardTitle>
             <CardDescription className="text-gray-400">
               Create a new stream or join an existing one
@@ -74,20 +74,20 @@ const Page = () => {
           
           <CardContent className="pt-6">
             <Tabs defaultValue="create" className="w-full">
-              <TabsList className="grid grid-cols-2 mb-8">
-                <TabsTrigger value="create" className="data-[state=active]:bg-purple-600">
+              <TabsList className="grid grid-cols-2 rounded-2xl mb-8">
+                <TabsTrigger value="create" className="rounded-2xl data-[state=active]:bg-purple-600">
                   <Plus className="w-4 h-4 mr-2" /> Create Stream
                 </TabsTrigger>
-                <TabsTrigger value="join" className="data-[state=active]:bg-purple-600">
+                <TabsTrigger value="join" className="rounded-2xl data-[state=active]:bg-purple-600">
                   <Users className="w-4 h-4 mr-2" /> Join Stream
                 </TabsTrigger>
               </TabsList>
               
-              <TabsContent value="create" className="space-y-4">
+              <TabsContent value="create" className="space-y-4 ">
                 <div className="space-y-4">
-                  <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20">
+                  <div className="bg-purple-500/10 rounded-2xl p-4 border border-purple-500/20">
                     <div className="flex items-center mb-3">
-                      <Radio className="w-5 h-5 text-purple-500 mr-2" />
+                      <Music className="w-5 h-5 text-purple-500 mr-2" />
                       <h3 className="text-lg font-medium text-white">Create Your Stream</h3>
                     </div>
                     <p className="text-sm text-gray-400 mb-4">
@@ -99,7 +99,7 @@ const Page = () => {
                     >
                       <Button 
                         onClick={handleCreateServer} 
-                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-2xl text-white border-0"
                       >
                         <Sparkles className="w-4 h-4 mr-2" />
                         Create New Stream
@@ -109,9 +109,9 @@ const Page = () => {
                 </div>
               </TabsContent>
               
-              <TabsContent value="join" className="space-y-4">
+              <TabsContent value="join" className="space-y-4 ">
                 <div className="space-y-4">
-                  <div className="bg-purple-500/10 rounded-lg p-4 border border-purple-500/20">
+                  <div className="bg-purple-500/10 rounded-2xl p-4 border border-purple-500/20">
                     <div className="flex items-center mb-3">
                       <Music className="w-5 h-5 text-purple-500 mr-2" />
                       <h3 className="text-lg font-medium text-white">Join Existing Stream</h3>
@@ -132,7 +132,7 @@ const Page = () => {
                       >
                         <Button 
                           onClick={handleJoinRoom} 
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          className="bg-purple-600 hover:bg-purple-700 rounded-xl text-white"
                         >
                           <ArrowRight className="w-4 h-4" />
                         </Button>
@@ -143,10 +143,6 @@ const Page = () => {
               </TabsContent>
             </Tabs>
           </CardContent>
-          
-          <CardFooter className="flex justify-center border-t border-gray-800 pt-4 text-xs text-gray-500">
-            <p>Powered by Music Stream • Share the music you love</p>
-          </CardFooter>
         </Card>
       </motion.div>
     </div>

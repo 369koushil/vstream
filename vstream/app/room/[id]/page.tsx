@@ -1,7 +1,7 @@
 "use client";
 
 import VideoQueue from "@/app/components/VideoQueue";
-import { addVideoQueue, joinRoom, getUpdatedQueue, getInitQueue, leaveRoom, videoCompleted } from "@/app/utils/socket";
+import { addVideoQueue, joinRoom,getUCnt,endRoom,cleanUpSockets, getUpdatedQueue, getInitQueue, videoCompleted } from "@/app/utils/socket";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -10,7 +10,7 @@ import CustomYouTubePlayer from "@/app/components/VideoPlayer";
 import YouTube from "react-youtube";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Youtube, Users, Crown, Link, LogOutIcon } from 'lucide-react';
+import {  Youtube, Users, Crown, Link, LogOutIcon } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { VideoItem } from "@/app/utils/Types";
 
@@ -48,9 +48,10 @@ const Page = () => {
         joinRoom(params.id as string);
         getInitQueue(setVideoData);  
         getUpdatedQueue(setVideoData, getCurrentVideo);
+        getUCnt(setTotalCnt)
         return () => {
-
-            leaveRoom(); 
+            cleanUpSockets()
+           
         };
     }, [params.id]);
 
@@ -58,9 +59,10 @@ const Page = () => {
         console.log(session.data?.user.id)
         console.log(session.data?.user.hostId+"hostid")
         if (session.data?.user.hostId == session.data?.user.id)setHost(true);
+
     }, [session]);
 
-    
+   
    
 
     const getCurrentVideo = () => currentVData;
@@ -104,7 +106,7 @@ const Page = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#09090b] text-white">
+        <div className="min-h-screen bg-[#09090b] text-white select-none">
             {/* Header */}
             <header className="bg-[#09090b] border-b border-[#2a3a56] shadow-lg">
                 <div className="container mx-auto px-4 py-4">
@@ -117,7 +119,7 @@ const Page = () => {
                         </div>
                         
                         <div className="flex items-center gap-3">
-                            <Badge variant="outline" className="bg-[#09090b] text-blue-300 border-blue-500 px-3 py-1">
+                            <Badge variant="outline" className="bg-[#09090b]  text-blue-300 border-blue-500 px-3 py-1">
                                 <Users className="h-3 w-3 mr-1" />
                                 {cnt}
                             </Badge>
@@ -130,15 +132,16 @@ const Page = () => {
 
 
                                 <Badge  onClick={()=>{
+                                        if(host)endRoom(params.id as string)
                                         router.push('/dashboard')
-                                    }} variant="outline" className="bg-[#09090b] text-yellow-300 border-yellow-500 px-3 py-1">
+                                    }} variant="outline" className="bg-[#09090b] text-red-300 border-red-500 px-3 py-1">
                                     <LogOutIcon className="h-3 w-3 mr-1" />
                                      leave
                                 </Badge>
                               
-
-                            
-                            <Button variant="ghost" size="icon" className="rounded-full bg-[#09090b] hover:bg-[#2a3a56]">
+                            <Button variant="ghost" size="icon" onClick={()=>{
+                                navigator.clipboard.writeText(params.id as string)
+                            }} className="rounded-full bg-[#09090b] hover:bg-[#2a3a56]">
                                 <Link className="h-4 w-4 text-blue-300" />
                             </Button>
                         </div>
@@ -174,13 +177,13 @@ const Page = () => {
                         </div>
 
                         {/*input box*/}
-                        <div className="mb-6 bg-[#09090b] rounded-xl p-4 shadow-lg border border-[#2a3a56]">
+                        <div className="mb-6 bg-gray-900 rounded-xl p-4 shadow-lg border border-[#2a3a56]">
                     <div className="flex flex-col md:flex-row items-center gap-3">
                         <div className="flex-1 w-full">
                             <div className="relative">
                                 <Youtube className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4a5a76]" />
                                 <Input 
-                                    className="w-full pl-10 bg-gray-900 border-[#2a3a56] focus:border-blue-500 focus:ring-blue-500 text-white placeholder:text-[#4a5a76]"
+                                    className="w-full pl-10  bg-[#09090b] border-[#2a3a56] focus:border-blue-500 focus:ring-blue-500 text-white placeholder:text-[#4a5a76]"
                                     type="text"
                                     value={url}
                                     onChange={(e) => setUrl(e.target.value)}
@@ -190,9 +193,9 @@ const Page = () => {
                         </div>
                         <Button 
                             onClick={handleAddVid}
-                            className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2"
+                            className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white  shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
                         >
-                            <PlusCircle className="h-5 w-5" />
+                           
                             Add to Queue
                         </Button>
                     </div>
@@ -201,7 +204,7 @@ const Page = () => {
                     
                     {/* Queue Column */}
                     <div className="lg:col-span-1 ">
-                        <VideoQueue videoData={videoData} />
+                        <VideoQueue videoData={videoData}/>
                     </div>
                  
                 </div>
