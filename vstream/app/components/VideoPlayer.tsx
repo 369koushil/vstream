@@ -5,20 +5,21 @@ import { useRef, useEffect } from "react"
 import YouTube, { type YouTubePlayer } from "react-youtube"
 import { Play, Pause, Square } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { controlByHost, removeVideoControllers, uVControlsListner } from "../utils/socket"
+import { controlByHost, removeVideoControllers, uVControlsListener } from "../utils/socket"
 import { PlayerProps } from "../utils/Types"
 
-const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd, videoId, isHost, streamId }) => {
+const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd, videoId, isHost, streamId,setIsPlaying}) => {
   const playerRef = useRef<YouTubePlayer | null>(null)
-
   useEffect(() => {
-    uVControlsListner(playerRef, isHost)
-    return () => {
-      removeVideoControllers()
-    }
-  }, [isHost, streamId])
+    console.log("useefect videoplayer")
+    uVControlsListener(playerRef,isHost)
+      return () => {
+        removeVideoControllers()
+      };
+  }, [isHost, streamId]);
 
   const onReady = (event: { target: YouTubePlayer }) => {
+    console.log("YouTube player ready");
     playerRef.current = event.target
   }
 
@@ -26,6 +27,7 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
     if (isHost && playerRef.current) {
       playerRef.current.playVideo()
       controlByHost("play", streamId)
+      setIsPlaying(true)
     }
   }
 
@@ -33,6 +35,7 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
     if (isHost && playerRef.current) {
       playerRef.current.pauseVideo()
       controlByHost("pause", streamId)
+      setIsPlaying(false)
     }
   }
 
@@ -40,6 +43,7 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
     if (isHost && playerRef.current) {
       playerRef.current.stopVideo()
       controlByHost("stop", streamId)
+      setIsPlaying(false)
     }
   }
 
@@ -61,12 +65,17 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
               className="w-full h-full"
             />
           ) : (
-            <div className="text-center text-gray-400 p-8">
-              <p className="text-lg font-semibold">No video playing</p>
-              <p className="text-sm">
+            <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-gradient-to-r from-blue-400/40 to-purple-500/30">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/10 flex items-center justify-center">
+                <Play className="h-8 w-8 text-purple-400" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">No video playing</h3>
+              <p className="text-sm text-muted-foreground max-w-md">
                 Add YouTube videos to the queue and vote for your favorites. The highest voted video will play next.
               </p>
             </div>
+          </div>
           )}
         </div>
       </div>

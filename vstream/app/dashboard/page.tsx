@@ -32,15 +32,19 @@ const Page = () => {
       streamId: res.data.newStream.id,
       hostId: res.data.newStream.hostId,
     }).then(() => {
-      initSocConn(res.data.newStream.id as string);
+      console.log("updated seesion")
     });
 
     router.push(`/room/${res.data.newStream.id}_${data?.user.name?.split(" ")[0]}`);
   };
 
-  const handleJoinRoom = () => {
+  const handleJoinRoom = async() => {
     if (streamId == "") alert("enter valid stream id");
-    joinRoom(streamId,);
+    await update({
+      streamId,
+      hostId: null,
+    })
+    joinRoom(streamId,data?.user.name?.split(" ")[0] as string);
     router.push(`/room/${streamId}`);
   };
 
@@ -68,7 +72,7 @@ const Page = () => {
               VStream Dashboard
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Create a new stream or join an existing one
+              Create a new room or join an existing one
             </CardDescription>
           </CardHeader>
           
@@ -76,10 +80,10 @@ const Page = () => {
             <Tabs defaultValue="create" className="w-full">
               <TabsList className="grid grid-cols-2 rounded-2xl mb-8">
                 <TabsTrigger value="create" className="rounded-2xl data-[state=active]:bg-purple-600">
-                  <Plus className="w-4 h-4 mr-2" /> Create Stream
+                  <Plus className="w-4 h-4 mr-2" /> Create room
                 </TabsTrigger>
                 <TabsTrigger value="join" className="rounded-2xl data-[state=active]:bg-purple-600">
-                  <Users className="w-4 h-4 mr-2" /> Join Stream
+                  <Users className="w-4 h-4 mr-2" /> Join room
                 </TabsTrigger>
               </TabsList>
               
@@ -88,10 +92,10 @@ const Page = () => {
                   <div className="bg-purple-500/10 rounded-2xl p-4 border border-purple-500/20">
                     <div className="flex items-center mb-3">
                       <Music className="w-5 h-5 text-purple-500 mr-2" />
-                      <h3 className="text-lg font-medium text-white">Create Your Stream</h3>
+                      <h3 className="text-lg font-medium text-white">Create Your room</h3>
                     </div>
                     <p className="text-sm text-gray-400 mb-4">
-                      Start a new music stream and invite friends to join. You'll be the host with full control.
+                      Start a new room and invite friends to join. You'll be the host with full control.
                     </p>
                     <motion.div
                       whileHover={{ scale: 1.02 }}
@@ -102,7 +106,7 @@ const Page = () => {
                         className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-2xl text-white border-0"
                       >
                         <Sparkles className="w-4 h-4 mr-2" />
-                        Create New Stream
+                        Create New room
                       </Button>
                     </motion.div>
                   </div>
@@ -117,7 +121,7 @@ const Page = () => {
                       <h3 className="text-lg font-medium text-white">Join Existing Stream</h3>
                     </div>
                     <p className="text-sm text-gray-400 mb-4">
-                      Enter a stream ID to join an existing music stream and enjoy music with friends.
+                      Enter a room ID to join an existing room and enjoy music with friends.
                     </p>
                     <div className="flex gap-2">
                       <Input

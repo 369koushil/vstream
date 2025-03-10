@@ -1,6 +1,8 @@
 import io from "socket.io-client";
 import { VideoItem } from "./Types";
 import  { type YouTubePlayer } from "react-youtube"
+import { toast } from "sonner";
+
 
 
 export const socket = io("http://localhost:4000");
@@ -12,8 +14,9 @@ export const initSocConn = (streamId: string) => {
     socket.emit("create_stream", streamId);
 };
 
-export const joinRoom = (roomId: string)=>{
-    socket.emit("join room", roomId);
+export const joinRoom = (streamId: string,username:String)=>{
+    socket.emit("join room", {streamId,username});
+
 };
 
 
@@ -23,8 +26,10 @@ export const addVideoQueue = (obj: VideoItem) => {
 
 
 
+
 export const getInitQueue = (setVideoData: (data:VideoItem[]) => void) => {
     socket.off("init_vqueue"); 
+    
     socket.on("init_vqueue", (data: VideoItem[]) => {
         if (Array.isArray(data)) {
             console.log(data)
@@ -39,21 +44,27 @@ export const voteVideo = (streamId: string, videoId: string, voteType: "upvote" 
 
 
 export const controlByHost=(action:string,streamId:string)=>{
+    console.log("controls by hostn"+action)
     socket.emit("video_control", { action, streamId });
 }
 
-export const removeVideoControllers=()=>{
-    socket.off("video_control")
-}
 
-export const uVControlsListner=(playerRef:React.RefObject<YouTubePlayer>,isHost:boolean)=>{
-  socket.on("video_control", (action:string) => {
-              if (!isHost && playerRef.current) {
-                  if (action === "play") playerRef.current.playVideo();
-                  if (action === "pause") playerRef.current.pauseVideo();
-                  if (action === "stop") playerRef.current.stopVideo();
-              }
-          })
+export const uVControlsListener=(playerRef:React.RefObject<YouTubePlayer>,isHost:boolean)=>{
+    console.log("executing uvcontrollerlisnter fucntion")
+    socket.on("video_control_user", (action:string) => {
+          console.log("lisneing event uvcontol inside")
+                if (!isHost && playerRef.current) {
+                    if (action === "play") playerRef.current.playVideo();
+                    if (action === "pause") playerRef.current.pauseVideo();
+                    if (action === "stop") playerRef.current.stopVideo();
+                }
+            })
+  }
+  
+
+
+  export const removeVideoControllers=()=>{
+    socket.off("video_control")
 }
 
 
@@ -63,11 +74,6 @@ export const videoCompleted=(streamId:string,finishedVideo:VideoItem)=>{
 }
 
 
-export const getUCnt=(setcnt:any)=>{
-    socket.on("roomMemberCount",(data:number)=>{
-        setcnt((prev:any)=>prev+1)
-    })
-}
 
 export const endRoom=(streamId:string)=>{
     socket.emit("endRoom",streamId)
@@ -101,7 +107,6 @@ export const getUpdatedQueue = (
 
 export const cleanUpSockets=()=>{
     socket.off("updated_vqueue")
-    socket.off("roomMemberCount")
-    socket.off("video_control")
+    socket.off("video_control_user")
     socket.off("init_vqueue")
 }

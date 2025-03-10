@@ -9,6 +9,17 @@ module.exports = {
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    
+      animation: {
+        slowPulse: "slowPulse 3s ease-in-out infinite",
+      },
+      keyframes: {
+        slowPulse: {
+          "0%": { backgroundColor: "#101423" },
+          "50%": { backgroundColor: "#1a1f33" }, /* Subtle transition */
+          "100%": { backgroundColor: "#101423" },
+        },
+      },
     container: {
       center: true,
       padding: "2rem",

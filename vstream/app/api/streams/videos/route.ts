@@ -1,4 +1,3 @@
-import prisma from "@/app/utils/db";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from 'zod'

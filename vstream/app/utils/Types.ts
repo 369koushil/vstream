@@ -16,5 +16,6 @@ export interface PlayerProps {
   streamId: string
   onVideoEnd: () => void
   onStateChange: (event: { data: number }) => void
+  setIsPlaying:(p:boolean)=>void
 }
 

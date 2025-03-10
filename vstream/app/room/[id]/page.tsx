@@ -1,7 +1,7 @@
 "use client";
 
 import VideoQueue from "@/app/components/VideoQueue";
-import { addVideoQueue, joinRoom,getUCnt,endRoom,cleanUpSockets, getUpdatedQueue, getInitQueue, videoCompleted } from "@/app/utils/socket";
+import { addVideoQueue, initSocConn, joinRoom, endRoom, cleanUpSockets, getUpdatedQueue, getInitQueue, videoCompleted } from "@/app/utils/socket";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -10,9 +10,10 @@ import CustomYouTubePlayer from "@/app/components/VideoPlayer";
 import YouTube from "react-youtube";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {  Youtube, Users, Crown, Link, LogOutIcon } from 'lucide-react';
+import { Youtube, Users, Crown, Link, LogOutIcon } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { VideoItem } from "@/app/utils/Types";
+import { toast } from "sonner"
 
 const PlayerState = YouTube.PlayerState;
 
@@ -21,62 +22,70 @@ const PlayerState = YouTube.PlayerState;
 const Page = () => {
     const params = useParams();
     const session = useSession();
-    const router=useRouter();
+    const router = useRouter();
     const [url, setUrl] = useState("");
     const [videoData, setVideoData] = useState<VideoItem[]>([]);
     const [isHost, setHost] = useState<boolean>(false);
     const [currentVData, setCurrentVData] = useState<VideoItem>();
-    const [host,setHostTag]=useState<string>("Host");
-    const[cnt,setTotalCnt]=useState<number>(0);
+    const [host, setHostTag] = useState<string>("Host");
+    const [cnt, setTotalCnt] = useState<number>(0);
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
-    
+
 
     useEffect(() => {
         if (!currentVData && videoData.length > 0) {
             setCurrentVData(videoData[0]);
         }
-    }, [videoData]); 
-    
+    }, [videoData]);
+
     useEffect(() => {
         getUpdatedQueue(setVideoData, getCurrentVideo);
     }, [currentVData]);
-    
+
     useEffect(() => {
         if (!params.id) return;
-        const id=params.id as string
+        const id = params.id as string
+        initSocConn(params.id as string);
+       
         setHostTag(id.split("_")[1])
-        joinRoom(params.id as string);
-        getInitQueue(setVideoData);  
+        joinRoom(params.id as string,session.data?.user.name?.split(" ")[0]as string);
+        getInitQueue(setVideoData);
         getUpdatedQueue(setVideoData, getCurrentVideo);
-        getUCnt(setTotalCnt)
+
         return () => {
             cleanUpSockets()
-           
         };
     }, [params.id]);
 
+
+  
     useEffect(() => {
         console.log(session.data?.user.id)
-        console.log(session.data?.user.hostId+"hostid")
-        if (session.data?.user.hostId == session.data?.user.id)setHost(true);
+        console.log(session.data?.user.hostId + "hostid")
+        if (session.data?.user.hostId != null) setHost(true);
 
     }, [session]);
 
-   
-   
+
+
 
     const getCurrentVideo = () => currentVData;
-    
+
     const handleAddVid = async () => {
         if (!url.trim()) return;
         try {
-            const res = await axios.post("/api/streams/videos", {
+           axios.post("/api/streams/videos", {
                 url,
                 streamId: params.id,
-                addedBy:session.data?.user.name?.split(" ")[0]??"user"
-            });
+                addedBy: session.data?.user.name?.split(" ")[0] ?? "user"
+            }).then((res)=>{
+                addVideoQueue(res.data);
+                toast.success("video added succesfully")
+            })
 
-            addVideoQueue(res.data); 
+           
+             
             setUrl("");
         } catch (error) {
             console.error("Error adding video:", error);
@@ -85,11 +94,11 @@ const Page = () => {
 
     const handleVideoEnd = () => {
         if (!currentVData || videoData.length === 0) return;
-    
+
         const finishedVideo = currentVData;
         videoCompleted(params.id as string, finishedVideo);
         const updatedQueue = videoData.filter(video => video.id !== finishedVideo.id);
-        
+
         if (updatedQueue.length > 0) {
             setCurrentVData(updatedQueue[0]);
         } else {
@@ -117,29 +126,29 @@ const Page = () => {
                                 Vstream
                             </h1>
                         </div>
-                        
+
                         <div className="flex items-center gap-3">
                             <Badge variant="outline" className="bg-[#09090b]  text-blue-300 border-blue-500 px-3 py-1">
                                 <Users className="h-3 w-3 mr-1" />
                                 {cnt}
                             </Badge>
-                            
-                            
-                                <Badge variant="outline" className="bg-[#09090b] text-yellow-300 border-yellow-500 px-3 py-1">
-                                    <Crown className="h-3 w-3 mr-1" />
-                                    Host {host}
-                                </Badge>
 
 
-                                <Badge  onClick={()=>{
-                                        if(host)endRoom(params.id as string)
-                                        router.push('/dashboard')
-                                    }} variant="outline" className="bg-[#09090b] text-red-300 border-red-500 px-3 py-1">
-                                    <LogOutIcon className="h-3 w-3 mr-1" />
-                                     leave
-                                </Badge>
-                              
-                            <Button variant="ghost" size="icon" onClick={()=>{
+                            <Badge variant="outline" className="bg-[#09090b] text-yellow-300 border-yellow-500 px-3 py-1">
+                                <Crown className="h-3 w-3 mr-1" />
+                                Host {host}
+                            </Badge>
+
+
+                            <Badge onClick={() => {
+                                if (host) endRoom(params.id as string)
+                                router.push('/dashboard')
+                            }} variant="outline" className="bg-[#09090b] text-red-300 border-red-500 px-3 py-1">
+                                <LogOutIcon className="h-3 w-3 mr-1" />
+                                leave
+                            </Badge>
+
+                            <Button variant="ghost" size="icon" onClick={() => {
                                 navigator.clipboard.writeText(params.id as string)
                             }} className="rounded-full bg-[#09090b] hover:bg-[#2a3a56]">
                                 <Link className="h-4 w-4 text-blue-300" />
@@ -148,7 +157,7 @@ const Page = () => {
                     </div>
                 </div>
             </header>
-            
+
             {/* Main Content */}
             <main className="container mx-auto px-4 py-6">
                 {/* Content Grid */}
@@ -156,17 +165,18 @@ const Page = () => {
                     {/* Main Player Column */}
                     <div className="lg:col-span-2 space-y-4">
                         <div className=" rounded-xl shadow-xl overflow-hidden  border-gray-900 border-4">
-                            
+
                             <div className="p-0">
-                                <CustomYouTubePlayer 
-                                    onStateChange={handleVideoStateChange} 
-                                    onVideoEnd={handleVideoEnd} 
-                                    isHost={isHost} 
-                                    videoId={currentVData?.extractId as string} 
-                                    streamId={session.data?.user.streamId as string} 
+                                <CustomYouTubePlayer
+                                    onStateChange={handleVideoStateChange}
+                                    onVideoEnd={handleVideoEnd}
+                                    isHost={isHost}
+                                    videoId={currentVData?.extractId as string}
+                                    streamId={params.id as string}
+                                    setIsPlaying={setIsPlaying}
                                 />
                             </div>
-                            
+
                             {currentVData && (
                                 <div className="p-4 bg-[#101423] border-t border-[#2a3a56]">
                                     <h3 className="text-lg font-semibold text-blue-100 mb-1">
@@ -178,37 +188,37 @@ const Page = () => {
 
                         {/*input box*/}
                         <div className="mb-6 bg-gray-900 rounded-xl p-4 shadow-lg border border-[#2a3a56]">
-                    <div className="flex flex-col md:flex-row items-center gap-3">
-                        <div className="flex-1 w-full">
-                            <div className="relative">
-                                <Youtube className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4a5a76]" />
-                                <Input 
-                                    className="w-full pl-10  bg-[#09090b] border-[#2a3a56] focus:border-blue-500 focus:ring-blue-500 text-white placeholder:text-[#4a5a76]"
-                                    type="text"
-                                    value={url}
-                                    onChange={(e) => setUrl(e.target.value)}
-                                    placeholder="Paste YouTube URL here..."
-                                />
+                            <div className="flex flex-col md:flex-row items-center gap-3">
+                                <div className="flex-1 w-full">
+                                    <div className="relative">
+                                        <Youtube className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#4a5a76]" />
+                                        <Input
+                                            className="w-full pl-10  bg-[#09090b] border-[#2a3a56] focus:border-blue-500 focus:ring-blue-500 text-white placeholder:text-[#4a5a76]"
+                                            type="text"
+                                            value={url}
+                                            onChange={(e) => setUrl(e.target.value)}
+                                            placeholder="Paste YouTube URL here..."
+                                        />
+                                    </div>
+                                </div>
+                                <Button
+                                    onClick={handleAddVid}
+                                    className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white  shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
+                                >
+
+                                    Add to Queue
+                                </Button>
                             </div>
                         </div>
-                        <Button 
-                            onClick={handleAddVid}
-                            className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white  shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
-                        >
-                           
-                            Add to Queue
-                        </Button>
                     </div>
-                </div>
-                    </div>
-                    
+
                     {/* Queue Column */}
                     <div className="lg:col-span-1 ">
-                        <VideoQueue videoData={videoData}/>
+                        <VideoQueue videoData={videoData} isPlaying={isPlaying} />
                     </div>
-                 
+
                 </div>
-               
+
             </main>
         </div>
     );

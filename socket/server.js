@@ -25,15 +25,14 @@ io.on("connection", (socket) => {
     });
 
     socket.on("video_control", ({ action, streamId }) => {
-        io.to(streamId).emit("video_control", action);
+        console.log(`Host emitting video_control to room ${streamId}: ${action}`);
+        io.to(streamId).emit("video_control_user", action);
+       
     });
 
-    socket.on("join room", async (streamId) => {
-
-        const roomSize = io.sockets.adapter.rooms.get(streamId)?.size || 0;
-        await redis.set(`room:${streamId}`,roomSize);
-        io.to(streamId).emit("roomMemberCount", roomSize);
-
+    socket.on("join room", async ({streamId,username}) => {
+    console.log(streamId)
+        console.log(`User ${socket.id} joining room: ${streamId}`);
         socket.join(streamId);
         try {
             let queue = await redis.zrevrange(`stream:${streamId}:queue`, 0, -1, "WITHSCORES");
@@ -167,19 +166,18 @@ io.on("connection", (socket) => {
     
     
     
-
   
-     socket.on("leave_room",async(streamId)=>{
+    //  socket.on("leave_room",async(streamId)=>{
         
-        const rooms = Array.from(socket.rooms).filter((room) => room !== socket.id);
+    //     const rooms = Array.from(socket.rooms).filter((room) => room !== socket.id);
     
-        for (const streamId of rooms) {
-            const roomSize = io.sockets.adapter.rooms.get(streamId)?.size || 0;
-            await redis.set(`room:${streamId}`, roomSize);
-            io.to(streamId).emit("roomMemberCount", roomSize);
-        }
-        io.to(streamId).emit("roomMemberCount",3);
-     })
+    //     for (const streamId of rooms) {
+    //         const roomSize = io.sockets.adapter.rooms.get(streamId)?.size || 0;
+    //         await redis.set(`room:${streamId}`, roomSize);
+    //         io.to(streamId).emit("roomMemberCount", roomSize);
+    //     }
+    //     io.to(streamId).emit("roomMemberCount",3);
+    //  })
     
 
     socket.on("disconnect", async () => {

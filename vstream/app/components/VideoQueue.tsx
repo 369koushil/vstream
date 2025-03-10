@@ -11,22 +11,14 @@ import { voteVideo } from "../utils/socket"
 import { VideoItem } from "../utils/Types"
 import { useSession } from "next-auth/react"
 
-export default function VideoQueue({ videoData }: { videoData: VideoItem[]}) {
-  const [prevVideoData, setPrevVideoData] = useState<VideoItem[]>([])
+export default function VideoQueue({ videoData,isPlaying }: { videoData: VideoItem[],isPlaying:boolean}) {
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
   const session=useSession()
 
   useEffect(() => {
-    if (prevVideoData.length > 0) {
-      videoData.forEach((video) => {
-        const prevVideo = prevVideoData.find((v) => v.id === video.id)
-        if (prevVideo && prevVideo.votes < video.votes) {
-          setHighlightedId(video.id)
-          setTimeout(() => setHighlightedId(null), 2000)
-        }
-      })
+    if(videoData.length>0){
+      setHighlightedId(videoData[0].id)
     }
-    setPrevVideoData(videoData)
   }, [videoData])
 
   const handleVote = (streamId: string, id: string, type: "upvote" | "downvote") => {
@@ -37,7 +29,7 @@ export default function VideoQueue({ videoData }: { videoData: VideoItem[]}) {
 
   return (
     <Card className="h-full select-none bg-[#09090b] border-purple-500/20 dark:border-purple-500/20 overflow-hidden relative">
-  <CardHeader className="absolute top-0 pt-2 left-0 w-full h-16 bg-[#101423] rounded-t-lg flex items-center px-4">
+  <CardHeader className="absolute top-0 pt-5 left-0 w-full h-16 bg-[#101423] rounded-t-lg flex items-center px-4">
     <CardTitle className="flex justify-between items-center text-lg w-full">
       Video Queue{" "}
       <Badge variant="secondary" className="bg-purple-500/20 rounded-2xl text-foreground">
@@ -52,9 +44,14 @@ export default function VideoQueue({ videoData }: { videoData: VideoItem[]}) {
         {videoData.length > 0 ? (
           videoData.map((video) => (
             <div
-              key={video.id}
-              className="flex gap-3 p-3 rounded-lg  border border-purple-500/10 bg-[#09090b] hover:bg-accent/5 transition-colors"
-            >
+            key={video.id}
+            className={`flex gap-3 p-3  bg-[#09090b] rounded-xl hover:bg-accent/5 transition-colors duration-500
+              ${isPlaying&&highlightedId === video.id? "animate-slowPulse" : ""}`}
+          >
+          
+          
+          
+
               <div className="relative flex-shrink-0 w-24 h-16 rounded overflow-hidden">
                 <Image
                   src={video.smg || "/placeholder.svg"}

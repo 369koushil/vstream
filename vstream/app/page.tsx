@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Music, Play, Plus, Users, ThumbsUp, Youtube, Headphones, Radio, Sparkles } from 'lucide-react'
+import { Music, Plus, Users, ThumbsUp, Youtube, Headphones, Radio, Sparkles } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -38,7 +38,7 @@ export default function LandingPage() {
               <Link href="/dashboard">
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 h-12 px-6 text-lg rounded-2xl transition-transform hover:scale-105">
                   <Plus className="mr-2 h-5 w-5" />
-                  Create a Stream
+                  Create a Room
                 </Button>
               </Link>
               
@@ -48,7 +48,7 @@ export default function LandingPage() {
                 className="border-purple-500/50 hover:bg-purple-500/20 text-white h-12 px-6 text-lg rounded-2xl transition-transform hover:scale-105"
               >
                 <Users className="mr-2 h-5 w-5" />
-                Join a Stream
+                Join a Room
               </Button>
               </Link>
             </div>
@@ -72,7 +72,7 @@ export default function LandingPage() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2 font-display">Create a Room</h3>
                   <p className="text-gray-400">
-                    Start a stream & become the host. Set up your music room in seconds.
+                    Start a Room & become the host. Set up your music room in seconds.
                   </p>
                 </CardContent>
               </Card>

@@ -1,18 +1,15 @@
+import { Toaster } from "@/components/ui/sonner"
 export default function Layout({
-    children,
-    params,
+    children
   }: {
     children: React.ReactNode;
     params: { id: string }; // 🛑 Params automatically passed
   }) {
     return (
-      <div>
-        <h1>room: {params.id}</h1>
+      <>
+         <Toaster position="bottom-right" richColors duration={4000} />
         {children}
-        <div>
-            <button onClick={()=>console.log("left")}>leave room</button>
-        </div>
-      </div>
+      </>
     );
   }
   
