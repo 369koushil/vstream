@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         try {
             res = await youtube.GetVideoDetails(extractedId);
         } catch (error) {
-            return NextResponse.json({ msg: "Failed to fetch video details" }, { status: 500 });
+            return NextResponse.json({ msg: "Failed to fetch video details",error }, { status: 500 });
         }
 
         const thumbnails = res.thumbnail?.thumbnails || [];
