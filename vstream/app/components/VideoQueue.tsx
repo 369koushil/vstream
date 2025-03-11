@@ -18,8 +18,14 @@ export default function VideoQueue({ videoData,isPlaying }: { videoData: VideoIt
   useEffect(() => {
     if(videoData.length>0){
       setHighlightedId(videoData[0].id)
+     
     }
   }, [videoData])
+
+  useEffect(()=>{
+    console.log(videoData.length)
+console.log(videoData[0])
+  })
 
   const handleVote = (streamId: string, id: string, type: "upvote" | "downvote") => {
     // console.log(session.data?.user.id)

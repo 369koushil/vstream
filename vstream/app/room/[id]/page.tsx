@@ -1,7 +1,7 @@
 "use client";
 
 import VideoQueue from "@/app/components/VideoQueue";
-import { addVideoQueue, initSocConn, joinRoom, endRoom, cleanUpSockets, getUpdatedQueue, getInitQueue, videoCompleted } from "@/app/utils/socket";
+import { addVideoQueue, initSocConn, joinRoom,roomEndListner, endRoom, cleanUpSockets, getUpdatedQueue, getInitQueue, videoCompleted } from "@/app/utils/socket";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -52,7 +52,7 @@ const Page = () => {
         joinRoom(params.id as string, session.data?.user.name?.split(" ")[0] as string);
         getInitQueue(setVideoData);
         getUpdatedQueue(setVideoData, getCurrentVideo);
-
+        roomEndListner()
         return () => {
             cleanUpSockets()
         };
@@ -94,10 +94,18 @@ const Page = () => {
                 addVideoQueue(res.data);
                 setIsAdding(false)
                 toast.success("video added succesfully")
+            }).finally(() => {
+                setIsAdding(false)
             })
 
             setUrl("");
         } catch (error) {
+            toast.message("Error while adding video",{
+                style:{
+                   backgroundColor: "#ffffff",
+                    color: "#000000"
+                }
+            })
             console.error("Error adding video:", error);
         }
     };
@@ -106,10 +114,14 @@ const Page = () => {
         if (!currentVData || videoData.length === 0) return;
 
         const finishedVideo = currentVData;
+        // console.log(finishedVideo)
         videoCompleted(params.id as string, finishedVideo);
         const updatedQueue = videoData.filter(video => video.id !== finishedVideo.id);
+        setVideoData(updatedQueue)
+        // console.log(updatedQueue[0])
 
         if (updatedQueue.length > 0) {
+            // console.log("checking from handle videoend"+updatedQueue[0])
             setCurrentVData(updatedQueue[0]);
         } else {
             setCurrentVData(undefined);
@@ -120,6 +132,7 @@ const Page = () => {
         if (event.data === PlayerState.PLAYING) {
             if (!currentVData || currentVData.id !== videoData[0]?.id) {
                 setCurrentVData(videoData[0]);
+                // console.log("checking on statet change "+videoData[0])
             }
         }
     };
@@ -148,11 +161,12 @@ const Page = () => {
 
 
                             <Badge onClick={() => {
-                                if (host)endRoom(params.id as string)
-                                router.replace('/dashboard')
+                                if (isHost)endRoom(params.id as string)
+                                else {
+                                    router.replace('/dashboard')}
                             }} variant="outline" className="bg-[#09090b] cursor-pointer text-red-300 border-red-500 px-3 py-1">
                                 <LogOutIcon className="h-3 w-3 mr-1" />
-                                {isHost?"End room":"leave room"}
+                                {isHost ? "End room" : "leave room"}
                             </Badge>
 
                             <Button variant="ghost" size="icon" onClick={() => {
@@ -210,18 +224,24 @@ const Page = () => {
                                 </div>
 
                                 {isAdding ? (
-                                    <div className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl">
-                                        <LoaderCircle className="h-5 w-5 animate-spin" />
-                                        <span>Adding...</span>
-                                    </div>
-                                ) : (
-                                    <Button
-                                        onClick={handleAddVid}
-                                        className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
-                                    >
-                                        Add Video
-                                    </Button>
-                                )}
+                  <button
+                    disabled
+                    className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
+                  >
+                    <LoaderCircle
+                      className="h-5 w-5 animate-spin text-white"
+                      style={{ animation: "spin 1s linear infinite" }}
+                    />
+                    <span>Adding...</span>
+                  </button>
+                ) : (
+                  <Button
+                    onClick={handleAddVid}
+                    className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
+                  >
+                    Add Video
+                  </Button>
+                )}
 
 
                             </div>

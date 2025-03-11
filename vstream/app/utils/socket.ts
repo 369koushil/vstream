@@ -69,6 +69,7 @@ export const uVControlsListener=(playerRef:React.RefObject<YouTubePlayer>,isHost
 
 
 export const videoCompleted=(streamId:string,finishedVideo:VideoItem)=>{
+    console.log(streamId,finishedVideo)
     socket.emit("videoCompleted", { streamId, videoId: finishedVideo.id });
 
 }
@@ -76,6 +77,7 @@ export const videoCompleted=(streamId:string,finishedVideo:VideoItem)=>{
 
 
 export const endRoom=(streamId:string)=>{
+    console.log(streamId)
     socket.emit("endRoom",streamId)
 }
 
@@ -86,18 +88,24 @@ export const getUpdatedQueue = (
   ) => {
     socket.off("updated_vqueue");
     socket.on("updated_vqueue", (data: VideoItem[]) => {
+        // console.log("getting video after completing video")
+        // console.log(data)
       if (Array.isArray(data)) {
         const currentVideo = getCurrentVideo();
+        // console.log("this is current video checkking in socket fcuntion "+currentVideo)
         
         if (!currentVideo) {
+            // console.log("updated queue while not playing video")
           setVideoQueue(data);
           return;
         }
   
+        // console.log("updated queue while playing video")
         setVideoQueue([
           currentVideo,
           ...data.filter((video) => video.id !== currentVideo.id),
         ]);
+        // console.log("updated queue while playing video")
       }
     });
   };
@@ -109,8 +117,18 @@ export const cleanUpSockets=()=>{
     socket.off("updated_vqueue")
     socket.off("video_control_user")
     socket.off("init_vqueue")
+    socket.off("roomClosed")
+    socket.off("")
 }
 
-export const endRoomByHost=(streamId:string)=>{
-    socket.emit("end-room",streamId)
+export const roomEndListner=()=>{
+    socket.on("roomClosed",()=>{
+        window.location.replace('/dashboard'); 
+        toast.message("Room ended by host",{
+            style:{
+                backgroundColor: "#ffffff",
+                    color: "#000000"
+            }
+        })
+    })
 }

@@ -99,6 +99,10 @@ io.on("connection", (socket) => {
 
     socket.on("videoCompleted", async ({ streamId, videoId }) => {
         try {
+            console.log("-----------------")
+            console.log(streamId)
+            console.log(videoId)
+            console.log("-----------------")
             let queue = await redis.zrange(`stream:${streamId}:queue`, 0, -1);
             let finishedVideo = queue.find((video) => JSON.parse(video).id === videoId);
             if (!finishedVideo) return;
@@ -107,6 +111,7 @@ io.on("connection", (socket) => {
             let updatedQueue = await redis.zrevrange(`stream:${streamId}:queue`, 0, -1, "WITHSCORES");
             let parsedUpdatedQueue = formatQueue(updatedQueue);
             io.to(streamId).emit("updated_vqueue", parsedUpdatedQueue);
+            console.log("emitting updated queue after completing video")
         } catch (error) {
             console.error("Error handling video completion:", error);
         }

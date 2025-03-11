@@ -45,7 +45,7 @@ export default function LandingPage() {
               <Link href={'/dashboard'}>
               <Button
                 variant="outline"
-                className="border-purple-500/50 hover:bg-purple-500/20 text-white h-12 px-6 text-lg rounded-2xl transition-transform hover:scale-105"
+                className="border-purple-500/50 hover:bg-purple-500/20 text-white  h-12 px-6 text-lg rounded-2xl transition-transform hover:scale-105"
               >
                 <Users className="mr-2 h-5 w-5" />
                 Join a Room

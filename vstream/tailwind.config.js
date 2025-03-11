@@ -11,6 +11,7 @@ module.exports = {
   theme: {
     
       animation: {
+        spin: "spin 1s linear infinite",
         slowPulse: "slowPulse 3s ease-in-out infinite",
       },
       keyframes: {

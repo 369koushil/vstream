@@ -60,6 +60,9 @@
 
 @layer utilities {
   /* Custom animation for progress bar */
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
   @keyframes progress {
     0% {
       width: 0%;
