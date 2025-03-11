@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Music, Plus, Users, ThumbsUp, Youtube, Headphones, Radio, Sparkles } from 'lucide-react'
+import { Music, Plus, Users, ThumbsUp, Youtube, Headphones, Radio } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 

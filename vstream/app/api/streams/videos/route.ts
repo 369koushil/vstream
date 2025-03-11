@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from 'zod'
-//@ts-ignore
+//@ts-expect-error
 import youtube from "youtube-search-api";
 import { authOptions } from "@/app/utils/authopt";
 import { v4 as uuidv4 } from "uuid";

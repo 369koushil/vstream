@@ -13,7 +13,7 @@ export const initSocConn = (streamId: string) => {
     socket.emit("create_stream", streamId);
 };
 
-export const joinRoom = (streamId: string,username:String)=>{
+export const joinRoom = (streamId: string,username:string)=>{
     socket.emit("join room", {streamId,username});
 
 };

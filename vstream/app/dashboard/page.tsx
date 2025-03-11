@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import axios from "axios"
 import { useSession } from "next-auth/react"
 import { joinRoom } from "../utils/socket"
-import { Music, Plus, Users, ArrowRight, Radio, Sparkles,Loader2 } from "lucide-react"
+import { Music, Plus, Users, ArrowRight, Radio, Sparkles, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -48,7 +48,7 @@ const Page = () => {
 
   const handleJoinRoom = async () => {
     if (streamId == "") {
-       toast.warning("Enter valid RoomID")
+      toast.warning("Enter valid RoomID")
       return
     }
 
@@ -74,7 +74,7 @@ const Page = () => {
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center animate-pulse">
             <Radio className="w-8 h-8 text-white" />
           </div>
-          
+
         </div>
         <div className="text-center">
           <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
@@ -100,7 +100,7 @@ const Page = () => {
             <Users className="w-8 h-8 text-white" />
           </div>
           <div className="absolute -bottom-1 -right-1">
-           
+
           </div>
         </div>
         <div className="text-center">
@@ -157,8 +157,9 @@ const Page = () => {
                       <h3 className="text-lg font-medium text-white">Create Your Room</h3>
                     </div>
                     <p className="text-sm text-gray-400 mb-4">
-                      Start a new room and invite friends to join. You'll be the host with full control.
+                      Start a new room and invite friends to join. You&apos;ll be the host with full control.
                     </p>
+
                     <div className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
                       <Button
                         onClick={handleCreateServer}
