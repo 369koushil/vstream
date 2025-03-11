@@ -8,10 +8,12 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: "*" } });
 
-const redis = new Redis({ socket: {
-    host: process.env.REDIS_HOST ||"localhost",
-    port: process.env.REDIS_PORT ||6379
-} });
+const redis = new Redis({
+    port: 13940, // Your Redis port
+    host: "redis-13940.c283.us-east-1-4.ec2.redns.redis-cloud.com", // Your Redis host
+    username: "default", // Required for Redis Cloud
+    password: "jHi9HQer9dgjWcVEmU7mL3FHQc3rSO9E", // Your Redis password
+  });
 
 redis.ping().then((res) => console.log("Redis connected:", res));
 
