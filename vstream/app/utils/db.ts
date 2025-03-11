@@ -1,14 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-declare global {
-  namespace NodeJS {
-    interface Global {
-      prisma?: PrismaClient;
-    }
-  }
-}
-
-const globalForPrisma = global as unknown as { prisma?: PrismaClient };
+const globalForPrisma = globalThis as typeof globalThis & { prisma?: PrismaClient };
 
 const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
