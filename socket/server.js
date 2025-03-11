@@ -2,12 +2,16 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
+require('dotenv').config(); 
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: "*" } });
 
-const redis = new Redis({ host: "localhost", port: 6379 });
+const redis = new Redis({ socket: {
+    host: process.env.REDIS_HOST ||"localhost",
+    port: process.env.REDIS_PORT ||6379
+} });
 
 redis.ping().then((res) => console.log("Redis connected:", res));
 
