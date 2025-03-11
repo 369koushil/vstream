@@ -10,7 +10,7 @@ import CustomYouTubePlayer from "@/app/components/VideoPlayer";
 import YouTube from "react-youtube";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Youtube, Users, Crown, Link, LogOutIcon } from 'lucide-react';
+import { Youtube, Crown, Link, LogOutIcon, LoaderCircle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { VideoItem } from "@/app/utils/Types";
 import { toast } from "sonner"
@@ -28,8 +28,8 @@ const Page = () => {
     const [isHost, setHost] = useState<boolean>(false);
     const [currentVData, setCurrentVData] = useState<VideoItem>();
     const [host, setHostTag] = useState<string>("Host");
-    const [cnt, setTotalCnt] = useState<number>(0);
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [isAdding, setIsAdding] = useState<boolean>(false);
 
 
 
@@ -47,9 +47,9 @@ const Page = () => {
         if (!params.id) return;
         const id = params.id as string
         initSocConn(params.id as string);
-       
+
         setHostTag(id.split("_")[1])
-        joinRoom(params.id as string,session.data?.user.name?.split(" ")[0]as string);
+        joinRoom(params.id as string, session.data?.user.name?.split(" ")[0] as string);
         getInitQueue(setVideoData);
         getUpdatedQueue(setVideoData, getCurrentVideo);
 
@@ -59,10 +59,10 @@ const Page = () => {
     }, [params.id]);
 
 
-  
+
     useEffect(() => {
-        console.log(session.data?.user.id)
-        console.log(session.data?.user.hostId + "hostid")
+        // console.log(session.data?.user.id)
+        // console.log(session.data?.user.hostId + "hostid")
         if (session.data?.user.hostId != null) setHost(true);
 
     }, [session]);
@@ -73,19 +73,29 @@ const Page = () => {
     const getCurrentVideo = () => currentVData;
 
     const handleAddVid = async () => {
-        if (!url.trim()) return;
+        const regex = /(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/|v\/|shorts\/))([^?&]+)/;
+        const match = url.match(regex);
+        if (!match) {
+            toast.message("Enter valid YT video URL", {
+                style: {
+                    backgroundColor: "#ffffff",
+                    color: "#000000"
+                }
+            })
+            return;
+        }
         try {
-           axios.post("/api/streams/videos", {
+            setIsAdding(true)
+            axios.post("/api/streams/videos", {
                 url,
                 streamId: params.id,
                 addedBy: session.data?.user.name?.split(" ")[0] ?? "user"
-            }).then((res)=>{
+            }).then((res) => {
                 addVideoQueue(res.data);
+                setIsAdding(false)
                 toast.success("video added succesfully")
             })
 
-           
-             
             setUrl("");
         } catch (error) {
             console.error("Error adding video:", error);
@@ -128,10 +138,7 @@ const Page = () => {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Badge variant="outline" className="bg-[#09090b]  text-blue-300 border-blue-500 px-3 py-1">
-                                <Users className="h-3 w-3 mr-1" />
-                                {cnt}
-                            </Badge>
+
 
 
                             <Badge variant="outline" className="bg-[#09090b] text-yellow-300 border-yellow-500 px-3 py-1">
@@ -141,11 +148,11 @@ const Page = () => {
 
 
                             <Badge onClick={() => {
-                                if (host) endRoom(params.id as string)
-                                router.push('/dashboard')
-                            }} variant="outline" className="bg-[#09090b] text-red-300 border-red-500 px-3 py-1">
+                                if (host)endRoom(params.id as string)
+                                router.replace('/dashboard')
+                            }} variant="outline" className="bg-[#09090b] cursor-pointer text-red-300 border-red-500 px-3 py-1">
                                 <LogOutIcon className="h-3 w-3 mr-1" />
-                                leave
+                                {isHost?"End room":"leave room"}
                             </Badge>
 
                             <Button variant="ghost" size="icon" onClick={() => {
@@ -201,13 +208,22 @@ const Page = () => {
                                         />
                                     </div>
                                 </div>
-                                <Button
-                                    onClick={handleAddVid}
-                                    className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white  shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
-                                >
 
-                                    Add to Queue
-                                </Button>
+                                {isAdding ? (
+                                    <div className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl">
+                                        <LoaderCircle className="h-5 w-5 animate-spin" />
+                                        <span>Adding...</span>
+                                    </div>
+                                ) : (
+                                    <Button
+                                        onClick={handleAddVid}
+                                        className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
+                                    >
+                                        Add Video
+                                    </Button>
+                                )}
+
+
                             </div>
                         </div>
                     </div>

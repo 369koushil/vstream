@@ -10,7 +10,7 @@ export default async function middleware(req: NextRequest) {
 
     if (pathname.startsWith("/api/auth")) {
         if (token && token.userId && pathname === "/api/auth/signin") {
-            return NextResponse.redirect(new URL("/", req.url)); 
+            return NextResponse.redirect(new URL("/dashboard", req.url)); 
         }
         return NextResponse.next();
     }
@@ -22,8 +22,6 @@ export default async function middleware(req: NextRequest) {
     if (!token || !token.userId) {
         return NextResponse.redirect(new URL("/api/auth/signin", req.url));
     }
-
-    return NextResponse.next();
 }
 
 export const config = {

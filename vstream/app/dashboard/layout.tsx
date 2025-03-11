@@ -3,11 +3,10 @@ export default function Layout({
     children
   }: {
     children: React.ReactNode;
-    params: { id: string }; // 🛑 Params automatically passed
   }) {
     return (
       <>
-         <Toaster  position="bottom-right" richColors duration={3000} />
+         <Toaster  position="bottom-right" richColors duration={4000} />
         {children}
       </>
     );

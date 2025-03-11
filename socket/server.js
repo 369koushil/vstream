@@ -50,11 +50,9 @@ io.on("connection", (socket) => {
         console.log(`Room ${streamId} has ended`);
 
         try {
-            // Delete the queue and room info
             await redis.del(`stream:${streamId}:queue`);
             await redis.del(`room:${streamId}`);
     
-            // Find all vote keys for the room and delete them
             const voteKeys = await redis.keys(`stream:${streamId}:video:*:votes`);
             if (voteKeys.length > 0) {
                 await redis.del(...voteKeys);
@@ -165,19 +163,16 @@ io.on("connection", (socket) => {
     });
     
     
+    socket.on("end-room", (roomId) => {
+        console.log(`Room ${roomId} ended by host`);
+       
+        io.to(roomId).emit("meeting-ended");
+        
+        io.socketsLeave(roomId);
+    });
     
   
-    //  socket.on("leave_room",async(streamId)=>{
-        
-    //     const rooms = Array.from(socket.rooms).filter((room) => room !== socket.id);
-    
-    //     for (const streamId of rooms) {
-    //         const roomSize = io.sockets.adapter.rooms.get(streamId)?.size || 0;
-    //         await redis.set(`room:${streamId}`, roomSize);
-    //         io.to(streamId).emit("roomMemberCount", roomSize);
-    //     }
-    //     io.to(streamId).emit("roomMemberCount",3);
-    //  })
+
     
 
     socket.on("disconnect", async () => {

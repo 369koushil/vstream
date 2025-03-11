@@ -22,23 +22,22 @@ export default function VideoQueue({ videoData,isPlaying }: { videoData: VideoIt
   }, [videoData])
 
   const handleVote = (streamId: string, id: string, type: "upvote" | "downvote") => {
-    console.log(session.data?.user.id)
-    console.log(streamId,id,type,session.data?.user.id)
+    // console.log(session.data?.user.id)
+    // console.log(streamId,id,type,session.data?.user.id)
     voteVideo(streamId, id, type,session.data?.user.id as string)
   }
 
   return (
-    <Card className="h-full select-none bg-[#09090b] border-purple-500/20 dark:border-purple-500/20 overflow-hidden relative">
+    <Card className="h-full select-none text-white bg-[#09090b] border-purple-500/20 dark:border-purple-500/20 overflow-hidden relative">
   <CardHeader className="absolute top-0 pt-5 left-0 w-full h-16 bg-[#101423] rounded-t-lg flex items-center px-4">
-    <CardTitle className="flex justify-between items-center text-lg w-full">
+    <CardTitle className="flex justify-between text-gray-300 items-center text-lg w-full">
       Video Queue{" "}
-      <Badge variant="secondary" className="bg-purple-500/20 rounded-2xl text-foreground">
+      <Badge variant="secondary" className="bg-purple-500/20  text-gray-300 rounded-2xl ">
         {videoData.length} videos
       </Badge>
     </CardTitle>
   </CardHeader>
   <CardContent className="p-3 pt-20">
-    {/* Added 'pt-20' to push content below the header */}
     <ScrollArea className="h-[calc(100vh-100px)]">
       <div className="space-y-3">
         {videoData.length > 0 ? (

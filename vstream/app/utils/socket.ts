@@ -9,7 +9,7 @@ export const socket = io("http://localhost:4000");
 
 export const initSocConn = (streamId: string) => {
     socket.on("connect", () => {
-        console.log("Connected with ID:", socket.id);
+        // console.log("Connected with ID:", socket.id);
     });
     socket.emit("create_stream", streamId);
 };
@@ -32,7 +32,7 @@ export const getInitQueue = (setVideoData: (data:VideoItem[]) => void) => {
     
     socket.on("init_vqueue", (data: VideoItem[]) => {
         if (Array.isArray(data)) {
-            console.log(data)
+            // console.log(data)
             setVideoData(data);
         }
     });
@@ -44,15 +44,15 @@ export const voteVideo = (streamId: string, videoId: string, voteType: "upvote" 
 
 
 export const controlByHost=(action:string,streamId:string)=>{
-    console.log("controls by hostn"+action)
+    // console.log("controls by hostn"+action)
     socket.emit("video_control", { action, streamId });
 }
 
 
 export const uVControlsListener=(playerRef:React.RefObject<YouTubePlayer>,isHost:boolean)=>{
-    console.log("executing uvcontrollerlisnter fucntion")
+    // console.log("executing uvcontrollerlisnter fucntion")
     socket.on("video_control_user", (action:string) => {
-          console.log("lisneing event uvcontol inside")
+        //   console.log("lisneing event uvcontol inside")
                 if (!isHost && playerRef.current) {
                     if (action === "play") playerRef.current.playVideo();
                     if (action === "pause") playerRef.current.pauseVideo();
@@ -109,4 +109,8 @@ export const cleanUpSockets=()=>{
     socket.off("updated_vqueue")
     socket.off("video_control_user")
     socket.off("init_vqueue")
+}
+
+export const endRoomByHost=(streamId:string)=>{
+    socket.emit("end-room",streamId)
 }

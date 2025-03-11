@@ -11,7 +11,7 @@ import { PlayerProps } from "../utils/Types"
 const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd, videoId, isHost, streamId,setIsPlaying}) => {
   const playerRef = useRef<YouTubePlayer | null>(null)
   useEffect(() => {
-    console.log("useefect videoplayer")
+    // console.log("useefect videoplayer")
     uVControlsListener(playerRef,isHost)
       return () => {
         removeVideoControllers()
@@ -19,7 +19,7 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
   }, [isHost, streamId]);
 
   const onReady = (event: { target: YouTubePlayer }) => {
-    console.log("YouTube player ready");
+    // console.log("YouTube player ready");
     playerRef.current = event.target
   }
 

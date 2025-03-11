@@ -50,7 +50,7 @@ export const authOptions: NextAuthOptions = {
                 token.hostId = session.hostId as string ?? null;
                 token.host=session.host as string ??null;
             }
-            console.log(token)
+            // console.log(token)
               return token;
 
         },
