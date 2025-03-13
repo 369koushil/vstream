@@ -143,7 +143,7 @@ io.on("connection", (socket) => {
     
             // Adjust vote count
             const voteChange = 
-                 // If switching vote, change by 2 (undo + new vote)
+                 // If switching vote (undo + new vote)
                 (voteType === "upvote" ? 1 : -1); // If first-time voting, change by 1
     
             await redis.hset(userVoteKey, userId, voteType); // Store the user's vote
