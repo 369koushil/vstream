@@ -2,7 +2,7 @@ const express = require("express");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const Redis = require("ioredis");
-require('dotenv').config(); 
+require('dotenv').config();
 
 const app = express();
 const httpServer = createServer(app);
@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
     socket.on("video_control", ({ action, streamId }) => {
         console.log(`Host emitting video_control to room ${streamId}: ${action}`);
         io.to(streamId).emit("video_control_user", action);
-       
+
     });
 
     socket.on("join room", async ({streamId,username}) => {
@@ -51,19 +51,19 @@ io.on("connection", (socket) => {
 
 
     socket.on("endRoom", async(streamId) => {
-        io.to(streamId).emit("roomClosed"); 
+        io.to(streamId).emit("roomClosed");
         io.socketsLeave(streamId);
         console.log(`Room ${streamId} has ended`);
 
         try {
             await redis.del(`stream:${streamId}:queue`);
             await redis.del(`room:${streamId}`);
-    
+
             const voteKeys = await redis.keys(`stream:${streamId}:video:*:votes`);
             if (voteKeys.length > 0) {
                 await redis.del(...voteKeys);
             }
-    
+
             console.log(`Deleted all data for stream: ${streamId}`);
         } catch (error) {
             console.error("Error deleting room data:", error);
@@ -126,45 +126,45 @@ io.on("connection", (socket) => {
     socket.on("vote", async ({ streamId, videoId, voteType, userId }) => {
         try {
             console.log("voting server side");
-    
+
             if (!streamId || !videoId || !userId || !["upvote", "downvote"].includes(voteType)) {
                 console.log("Invalid vote parameters:", streamId, videoId, userId, voteType);
                 return;
             }
-    
+
             const userVoteKey = `stream:${streamId}:video:${videoId}:votes`;
             const previousVote = await redis.hget(userVoteKey, userId); // Get previous vote type
-    
+
             if (previousVote === voteType) {
                 console.log("User has already cast this vote");
                 socket.emit("vote_error", { message: `You have already ${voteType}d this video.` });
                 return;
             }
-    
+
             // Adjust vote count
-            const voteChange = 
-                 // If switching vote (undo + new vote)
+            const voteChange =
+                 // If switching vote, change by 2 (undo + new vote)
                 (voteType === "upvote" ? 1 : -1); // If first-time voting, change by 1
-    
+
             await redis.hset(userVoteKey, userId, voteType); // Store the user's vote
-    
+
             // Fetch the queue
             const queue = await redis.zrange(`stream:${streamId}:queue`, 0, -1);
             let videoData = queue.find((video) => JSON.parse(video).id === videoId);
-    
+
             if (!videoData) {
                 console.log("Video data not found");
                 return;
             }
-    
+
             let parsedVideo = JSON.parse(videoData);
             parsedVideo.votes = Math.max((parsedVideo.votes || 0) + voteChange, 0); // Prevent negative votes
-    
+
             let newScore = parsedVideo.timestamp + parsedVideo.votes * 1e14;
-    
+
             await redis.zrem(`stream:${streamId}:queue`, videoData);
             await redis.zadd(`stream:${streamId}:queue`, newScore, JSON.stringify(parsedVideo));
-    
+
             const updatedQueue = await redis.zrevrange(`stream:${streamId}:queue`, 0, -1, "WITHSCORES");
             const parsedUpdatedQueue = formatQueue(updatedQueue);
             io.to(streamId).emit("updated_vqueue", parsedUpdatedQueue);
@@ -172,26 +172,26 @@ io.on("connection", (socket) => {
             console.error("Error processing vote:", error);
         }
     });
-    
-    
+
+
     socket.on("end-room", (roomId) => {
         console.log(`Room ${roomId} ended by host`);
-       
+
         io.to(roomId).emit("meeting-ended");
-        
+
         io.socketsLeave(roomId);
     });
-    
-  
 
-    
+
+
+
 
     socket.on("disconnect", async () => {
         console.log("User disconnected:", socket.id);
 
-        
+
     });
-    
+
 });
 
 const PORT = process.env.WS_PORT || 4000;
@@ -213,6 +213,3 @@ const formatQueue = (queue) => {
     }
     return formatted;
 };
-
-
-
