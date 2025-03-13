@@ -58,7 +58,7 @@ const Page = () => {
         streamId,
         hostId: null,
       })
-      joinRoom(streamId, data?.user.name?.split(" ")[0] as string)
+      
       router.push(`/room/${streamId}`)
     } catch (error) {
       console.error("Error joining room:", error)
