@@ -4,8 +4,7 @@ import  { type YouTubePlayer } from "react-youtube"
 import { toast } from "sonner";
 
 
-const WS_SERVER_URL = process.env.NEXT_PUBLIC_WS_SERVER || "http://localhost:4000";
-export const socket = io(WS_SERVER_URL);
+const socket= io("wss://api.koushil.xyz")
 
 export const initSocConn = (streamId: string) => {
     socket.on("connect", () => {

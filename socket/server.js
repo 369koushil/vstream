@@ -6,13 +6,13 @@ require('dotenv').config();
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" } });
+const io = new Server(httpServer, { cors: { origin: "*" ,methods: ["GET", "POST"]} });
 
 const redis = new Redis({
-    port: process.env.REDIS_PORT,
-    host: process.env.REDIS_HOST,
+    port: 13940,
+    host: "redis-13940.c283.us-east-1-4.ec2.redns.redis-cloud.com",
     username: "default",
-    password: process.env.REDIS_PASSWORD,
+    password: "jHi9HQer9dgjWcVEmU7mL3FHQc3rSO9E",
   });
 
 redis.ping().then((res) => console.log("Redis connected:", res));
