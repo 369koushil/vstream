@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
-import ytdl, { videoInfo } from "@distube/ytdl-core";
 import { authOptions } from "@/app/utils/authopt";
 import { v4 as uuidv4 } from "uuid";
+
+const NEXT_API_KEY = process.env.NEXT_API_KEY;
 
 const addVideoSchema = z.object({
     url: z.string(),
@@ -17,7 +18,7 @@ function extractVideoId(url: string): string | null {
     return match ? match[1] : null;
 }
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user) {
@@ -33,31 +34,34 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             );
         }
 
-        const extractedId: string | null = extractVideoId(body.url);
+        const extractedId = extractVideoId(body.url);
         if (!extractedId) {
             return NextResponse.json({ msg: "Invalid YouTube URL" }, { status: 400 });
         }
 
-        let videoInfo: videoInfo;
-        try {
-            videoInfo = await ytdl.getInfo(extractedId);
-        } catch (error) {
-            console.error("Failed to fetch video details:", error);
-            return NextResponse.json({ msg: "Failed to fetch video details", error }, { status: 500 });
+        const YT_API_URL = `https://www.googleapis.com/youtube/v3/videos?id=${extractedId}&key=${NEXT_API_KEY}&part=snippet,contentDetails,statistics`;
+
+        const response = await fetch(YT_API_URL);
+        const videoData = await response.json();
+        console.log(response)
+        console.log(videoData)
+
+        if (!videoData.items || videoData.items.length === 0) {
+            return NextResponse.json({ msg: "Video not found" }, { status: 404 });
         }
 
-        const thumbnails = videoInfo.videoDetails.thumbnails || [];
-        thumbnails.sort((a: { width: number }, b: { width: number }) => a.width - b.width);
+        const videoInfo = videoData.items[0].snippet;
+        const thumbnails = videoInfo.thumbnails;
 
         const uniqueId = uuidv4();
         const data = {
             id: uniqueId,
-            title: videoInfo.videoDetails.title,
+            title: videoInfo.title,
             extractId: extractedId,
             streamId: body.streamId,
             hostId: session.user.id.toString(),
-            smg: thumbnails?.[1]?.url || "",
-            big: thumbnails?.[thumbnails.length - 1]?.url || "",
+            smg: thumbnails.medium?.url || "",
+            big: thumbnails.maxres?.url || thumbnails.high?.url || "",
             addedBy: body.addedBy,
         };
 
