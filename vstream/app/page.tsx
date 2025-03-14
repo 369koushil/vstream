@@ -165,7 +165,7 @@ export default function LandingPage() {
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <Headphones className="h-6 w-6 text-purple-500" />
               <span className="font-bold text-lg bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent">
-                MusicStream
+                VStream
               </span>
             </div>
 
