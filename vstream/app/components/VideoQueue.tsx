@@ -59,6 +59,7 @@ console.log(videoData[0])
 
               <div className="relative flex-shrink-0 w-24 h-16 rounded overflow-hidden">
                 <Image
+                   loading="lazy"
                   src={video.smg || "/placeholder.svg"}
                   alt={video.title || "Video thumbnail"}
                   fill

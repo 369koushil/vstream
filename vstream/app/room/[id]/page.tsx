@@ -151,11 +151,7 @@ const Page = () => {
                         </div>
 
                         <div className="flex items-center gap-3">
-
-
-
-                            <Badge onClick={()=>{
-                            }} variant="outline" className="bg-[#09090b] cursor-pointer text-yellow-300 border-yellow-500 px-3 py-1">
+                            <Badge variant="outline" className="bg-[#09090b] text-yellow-300 border-yellow-500 px-3 py-1">
                                 <Crown className="h-3 w-3 mr-1" />
                                 Host {host}
                             </Badge>
