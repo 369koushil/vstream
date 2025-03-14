@@ -154,7 +154,14 @@ const Page = () => {
 
 
 
-                            <Badge variant="outline" className="bg-[#09090b] text-yellow-300 border-yellow-500 px-3 py-1">
+                            <Badge onClick={()=>{
+                                toast.message("RoomID copied to clipboard", {
+                                    style: {
+                                        backgroundColor: "#ffffff",
+                                        color: "#000000"
+                                    }
+                                })
+                            }} variant="outline" className="bg-[#09090b] cursor-pointer text-yellow-300 border-yellow-500 px-3 py-1">
                                 <Crown className="h-3 w-3 mr-1" />
                                 Host {host}
                             </Badge>
