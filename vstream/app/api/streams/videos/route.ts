@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
-// @ts-expect-error (Ensure types exist, or use any)
-import youtube from "youtube-search-api";
+import ytdl, { videoInfo } from "@distube/ytdl-core";
 import { authOptions } from "@/app/utils/authopt";
 import { v4 as uuidv4 } from "uuid";
 
@@ -18,11 +17,11 @@ function extractVideoId(url: string): string | null {
     return match ? match[1] : null;
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const session = await getServerSession(authOptions);
         if (!session || !session.user) {
-            return NextResponse.json({ msg: "unauthorized" }, { status: 401 });
+            return NextResponse.json({ msg: "Unauthorized" }, { status: 401 });
         }
 
         const body = await req.json();
@@ -34,38 +33,31 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const extractedId = extractVideoId(body.url);
+        const extractedId: string | null = extractVideoId(body.url);
         if (!extractedId) {
             return NextResponse.json({ msg: "Invalid YouTube URL" }, { status: 400 });
         }
 
-        let res;
+        let videoInfo: videoInfo;
         try {
-            res = await youtube.GetVideoDetails(extractedId);
-            console.error("debugging the vide details")
-            console.error(res)
-            process.stdout.write(`Debugging the video details: ${JSON.stringify(res.thumbnail)}\n`);
-
+            videoInfo = await ytdl.getInfo(extractedId);
         } catch (error) {
-            return NextResponse.json({ msg: "Failed to fetch video details",error }, { status: 500 });
+            console.error("Failed to fetch video details:", error);
+            return NextResponse.json({ msg: "Failed to fetch video details", error }, { status: 500 });
         }
 
-        const thumbnails = res.thumbnail?.thumbnails || [];
-        // console.log(thumbnails)
-        thumbnails.sort((a: { width: number }, b: { width: number }) => (a.width < b.width ? -1 : 1));
-        // console.log("----------------------")
-    //    console.log(thumbnails?.[1]?.url )
-       
+        const thumbnails = videoInfo.videoDetails.thumbnails || [];
+        thumbnails.sort((a: { width: number }, b: { width: number }) => a.width - b.width);
 
         const uniqueId = uuidv4();
         const data = {
             id: uniqueId,
-            title: res.title,
+            title: videoInfo.videoDetails.title,
             extractId: extractedId,
             streamId: body.streamId,
             hostId: session.user.id.toString(),
-            smg: thumbnails?.[1]!.url,
-            big: thumbnails?.[thumbnails.length - 1]!.url,
+            smg: thumbnails?.[1]?.url || "",
+            big: thumbnails?.[thumbnails.length - 1]?.url || "",
             addedBy: body.addedBy,
         };
 
