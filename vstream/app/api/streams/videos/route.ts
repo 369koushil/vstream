@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         const thumbnails = res.thumbnail?.thumbnails || [];
         // console.log(thumbnails)
         thumbnails.sort((a: { width: number }, b: { width: number }) => (a.width < b.width ? -1 : 1));
-    //     console.log("----------------------")
+        console.log("----------------------")
        console.log(thumbnails?.[1]?.url )
         const fallbackImage =
             "https://imgs.search.brave.com/p-yZANTOLgHYlaDNBQ5r7caAKbb7fRxZuTL2EHy5uDs/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9mYWtl/aW1nLnBsLzYwMHg0/MDA.jpeg";
