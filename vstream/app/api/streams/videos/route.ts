@@ -42,7 +42,10 @@ export async function POST(req: NextRequest) {
         let res;
         try {
             res = await youtube.GetVideoDetails(extractedId);
-            // console.log(res.thumbnail)
+            console.error("debugging the vide details")
+            console.error(res)
+            process.stdout.write(`Debugging the video details: ${JSON.stringify(res.thumbnail)}\n`);
+
         } catch (error) {
             return NextResponse.json({ msg: "Failed to fetch video details",error }, { status: 500 });
         }
@@ -50,8 +53,8 @@ export async function POST(req: NextRequest) {
         const thumbnails = res.thumbnail?.thumbnails || [];
         // console.log(thumbnails)
         thumbnails.sort((a: { width: number }, b: { width: number }) => (a.width < b.width ? -1 : 1));
-        console.log("----------------------")
-       console.log(thumbnails?.[1]?.url )
+        // console.log("----------------------")
+    //    console.log(thumbnails?.[1]?.url )
        
 
         const uniqueId = uuidv4();
