@@ -52,8 +52,7 @@ export async function POST(req: NextRequest) {
         thumbnails.sort((a: { width: number }, b: { width: number }) => (a.width < b.width ? -1 : 1));
         console.log("----------------------")
        console.log(thumbnails?.[1]?.url )
-        const fallbackImage =
-            "https://imgs.search.brave.com/p-yZANTOLgHYlaDNBQ5r7caAKbb7fRxZuTL2EHy5uDs/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9mYWtl/aW1nLnBsLzYwMHg0/MDA.jpeg";
+       
 
         const uniqueId = uuidv4();
         const data = {
@@ -62,8 +61,8 @@ export async function POST(req: NextRequest) {
             extractId: extractedId,
             streamId: body.streamId,
             hostId: session.user.id.toString(),
-            smg: thumbnails?.[1]?.url || fallbackImage,
-            big: thumbnails?.[thumbnails.length - 1]?.url || fallbackImage,
+            smg: thumbnails?.[1]!.url,
+            big: thumbnails?.[thumbnails.length - 1]!.url,
             addedBy: body.addedBy,
         };
 
