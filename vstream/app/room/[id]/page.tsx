@@ -171,6 +171,13 @@ const Page = () => {
 
                             <Button variant="ghost" size="icon" onClick={() => {
                                 navigator.clipboard.writeText(params.id as string)
+                                toast.message("RoomID copied to clipboard", {
+                                    style: {
+                                        backgroundColor: "#ffffff",
+                                        color: "#000000"
+                                    }
+                                })
+                                
                             }} className="rounded-full bg-[#09090b] hover:bg-[#2a3a56]">
                                 <Link className="h-4 w-4 text-blue-300" />
                             </Button>
