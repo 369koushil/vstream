@@ -43,20 +43,16 @@ console.log(videoData[0])
       </Badge>
     </CardTitle>
   </CardHeader>
-  <CardContent className="p-3 pt-20">
+  <CardContent className="p-3 pt-16">
     <ScrollArea className="h-[calc(100vh-100px)]">
       <div className="space-y-3">
         {videoData.length > 0 ? (
           videoData.map((video) => (
             <div
             key={video.id}
-            className={`flex gap-3 p-3  bg-[#09090b] rounded-xl hover:bg-accent/5 transition-colors duration-500
+            className={`flex items-center gap-3 p-3  bg-[#09090b] rounded-xl hover:bg-accent/5 transition-colors duration-500
               ${isPlaying&&highlightedId === video.id? "animate-slowPulse" : ""}`}
           >
-          
-          
-          
-
               <div className="relative flex-shrink-0 w-24 h-16 rounded overflow-hidden">
                 <Image
                   loading="lazy"
