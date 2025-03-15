@@ -50,33 +50,39 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
   return (
     <div className="flex flex-col w-full max-w-4xl mx-auto bg-[#09090b] border border-purple-500/20 dark:border-purple-500/20 shadow-lg overflow-hidden select-none">
       <div className="relative">
-        <div className="aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
-          {videoId ? (
-            <YouTube
-              onStateChange={onStateChange}
-              onEnd={onVideoEnd}
-              videoId={videoId}
-              opts={{
-                playerVars: { controls: 0 },
-                width: "100%",
-                height: "100%",
-              }}
-              onReady={onReady}
-              className="w-full h-full"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-gradient-to-r from-blue-400/40 to-purple-500/30">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/10 flex items-center justify-center">
-                <Play className="h-8 w-8 text-purple-400" />
-              </div>
-              <h3 className="text-lg font-medium mb-2">No video playing</h3>
-              <p className="text-sm text-muted-foreground max-w-md">
-                Add YouTube videos to the queue and vote for your favorites. The highest voted video will play next.
-              </p>
-            </div>
-          </div>
-          )}
+        <div  className="  aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
+        <div className="relative aspect-video w-full bg-black overflow-hidden flex items-center justify-center">
+  {videoId ? (
+    <>
+      <YouTube
+        onStateChange={onStateChange}
+        onEnd={onVideoEnd}
+        videoId={videoId}
+        opts={{
+          playerVars: { controls: 0 },
+          width: "100%",
+          height: "100%",
+        }}
+        onReady={onReady}
+        className="w-full h-full pointer-events-none"
+      />
+      <div className="absolute inset-0 w-full  h-full "></div>
+    </>
+  ) : (
+    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-gradient-to-r from-blue-400/40 to-purple-500/30">
+      <div className="text-center p-6">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/10 flex items-center justify-center">
+          <Play className="h-8 w-8 text-purple-400" />
+        </div>
+        <h3 className="text-lg font-medium mb-2">No video playing</h3>
+        <p className="text-sm text-muted-foreground max-w-md">
+          Add YouTube videos to the queue and vote for your favorites. The highest voted video will play next.
+        </p>
+      </div>
+    </div>
+  )}
+</div>
+
         </div>
       </div>
       {isHost && (
