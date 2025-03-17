@@ -23,7 +23,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-[url('/placeholder.svg?height=1080&width=1920')] bg-cover bg-center opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-b from-[#09090b]/50 to-[#09090b]"></div>
 
-        <div className="max-w-5xl mx-auto relative z-10">
+        <div className="max-w-5xl mx-auto relative z-10 select-none">
           <div className="text-center animate-fade-in">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
               Vstream
@@ -34,22 +34,22 @@ export default function LandingPage() {
               in real-time.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row  gap-4 justify-center mb-12">
               <Link href="/dashboard">
                 <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 h-12 px-6 text-lg rounded-2xl transition-transform hover:scale-105">
-                  <Plus className="mr-2 h-5 w-5" />
+                  <Plus className="mr-2 h-5 w-5  " />
                   Create a Room
                 </Button>
               </Link>
-              
+
               <Link href={'/dashboard'}>
-              <Button
-                variant="outline"
-                className="border-purple-500/50 hover:bg-purple-500/20 text-white  h-12 px-6 text-lg rounded-2xl transition-transform hover:scale-105"
-              >
-                <Users className="mr-2 h-5 w-5" />
-                Join a Room
-              </Button>
+                <Button
+                  variant="outline"
+                  className="border-purple-500/50 hover:bg-purple-500/20  hover:text-white h-12 px-6 text-lg rounded-2xl transition-transform hover:scale-105"
+                >
+                  <Users className="mr-2 h-5 w-5 " />
+                  Join a Room
+                </Button>
               </Link>
             </div>
           </div>
@@ -58,7 +58,7 @@ export default function LandingPage() {
 
       {/* How It Works Section */}
       <section className="py-16 px-6 bg-[#09090b]/80">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto select-none">
           <div className="animate-fade-in-up">
             <h2 className="text-3xl font-bold text-center mb-12 font-display">
               How It Works
@@ -70,7 +70,7 @@ export default function LandingPage() {
                   <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
                     <Radio className="h-8 w-8 text-purple-400" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 font-display">Create a Room</h3>
+                  <h3 className="text-xl font-semibold mb-2 text-white font-display">Create a Room</h3>
                   <p className="text-gray-400">
                     Start a Room & become the host. Set up your music room in seconds.
                   </p>
@@ -82,7 +82,7 @@ export default function LandingPage() {
                   <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
                     <Youtube className="h-8 w-8 text-purple-400" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 font-display">Add Songs</h3>
+                  <h3 className="text-xl font-semibold mb-2 text-white font-display">Add Songs</h3>
                   <p className="text-gray-400">
                     Paste YouTube links to add to the queue. Build your playlist together.
                   </p>
@@ -94,7 +94,7 @@ export default function LandingPage() {
                   <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
                     <ThumbsUp className="h-8 w-8 text-purple-400" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 font-display">Vote & Play</h3>
+                  <h3 className="text-xl font-semibold mb-2 text-white font-display">Vote & Play</h3>
                   <p className="text-gray-400">
                     Users vote, and the most popular song plays next. Democracy in action!
                   </p>
@@ -107,7 +107,7 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto select-none">
           <div className="animate-fade-in-up">
             <h2 className="text-3xl font-bold text-center mb-4 font-display">
               Key Features
@@ -156,11 +156,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      
+
 
       {/* Footer */}
       <footer className="py-10 px-6 bg-black/60 border-t border-gray-800">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto select-none">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <Headphones className="h-6 w-6 text-purple-500" />
@@ -182,7 +182,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          
+
         </div>
       </footer>
     </div>

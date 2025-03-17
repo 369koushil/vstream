@@ -1,7 +1,7 @@
 "use client";
 
 import VideoQueue from "@/app/components/VideoQueue";
-import { addVideoQueue, initSocConn, joinRoom,roomEndListner, endRoom, cleanUpSockets, getUpdatedQueue, getInitQueue, videoCompleted } from "@/app/utils/socket";
+import { addVideoQueue, initSocConn, joinRoom, roomEndListner, tostNotificationUserJoins, endRoom, cleanUpSockets, getUpdatedQueue, getInitQueue, videoCompleted, userLeftToastNotification, roomcnt } from "@/app/utils/socket";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
@@ -10,10 +10,11 @@ import CustomYouTubePlayer from "@/app/components/VideoPlayer";
 import YouTube from "react-youtube";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Youtube, Crown, Link, LogOutIcon, LoaderCircle } from 'lucide-react';
+import { Youtube, Users, Crown, Link, LogOutIcon, LoaderCircle } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { VideoItem } from "@/app/utils/Types";
 import { toast } from "sonner"
+
 
 const PlayerState = YouTube.PlayerState;
 
@@ -23,6 +24,7 @@ const Page = () => {
     const params = useParams();
     const session = useSession();
     const router = useRouter();
+    const [totalUser, setTotalUser] = useState<number>(0);
     const [url, setUrl] = useState("");
     const [videoData, setVideoData] = useState<VideoItem[]>([]);
     const [isHost, setHost] = useState<boolean>(false);
@@ -30,6 +32,19 @@ const Page = () => {
     const [host, setHostTag] = useState<string>("Host");
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [isAdding, setIsAdding] = useState<boolean>(false);
+
+
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            roomcnt(setTotalUser); // Call `roomcnt` after 2 seconds
+        }, 2000);
+
+        return () => {
+            clearTimeout(timeoutId); // Cleanup timeout on unmount
+            cleanUpSockets() // Cleanup socket listener
+        };
+    }, []);
 
 
 
@@ -53,6 +68,9 @@ const Page = () => {
         getInitQueue(setVideoData);
         getUpdatedQueue(setVideoData, getCurrentVideo);
         roomEndListner()
+        tostNotificationUserJoins()
+        userLeftToastNotification()
+        roomcnt(setTotalUser)
         return () => {
             cleanUpSockets()
         };
@@ -76,12 +94,7 @@ const Page = () => {
         const regex = /(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/|v\/|shorts\/))([^?&]+)/;
         const match = url.match(regex);
         if (!match) {
-            toast.message("Enter valid YT video URL", {
-                style: {
-                    backgroundColor: "#ffffff",
-                    color: "#000000"
-                }
-            })
+            toast.error("Enter valid YT video URL")
             return;
         }
         try {
@@ -100,11 +113,8 @@ const Page = () => {
 
             setUrl("");
         } catch (error) {
-            toast.message("Error while adding video",{
-                style:{
-                   backgroundColor: "#ffffff",
-                    color: "#000000"
-                }
+            toast.error("Error while adding video", {
+
             })
             console.error("Error adding video:", error);
         }
@@ -127,6 +137,7 @@ const Page = () => {
             setCurrentVData(undefined);
         }
     };
+
 
     const handleVideoStateChange = (event: { data: number }) => {
         if (event.data === PlayerState.PLAYING) {
@@ -151,6 +162,13 @@ const Page = () => {
                         </div>
 
                         <div className="flex items-center gap-3">
+
+                            <Badge variant="outline" className="bg-[#09090b] text-white border-gray-500 px-3 py-1">
+                                <Users className="h-3 w-3 mr-1 text-green-600" />
+
+                                {totalUser}
+                            </Badge>
+
                             <Badge variant="outline" className="bg-[#09090b] text-yellow-300 border-yellow-500 px-3 py-1">
                                 <Crown className="h-3 w-3 mr-1" />
                                 Host {host}
@@ -158,9 +176,11 @@ const Page = () => {
 
 
                             <Badge onClick={() => {
-                                if (isHost)endRoom(params.id as string)
+                                if (isHost) endRoom(params.id as string)
                                 else {
-                                    router.replace('/dashboard')}
+
+                                    router.replace('/dashboard')
+                                }
                             }} variant="outline" className="bg-[#09090b] cursor-pointer text-red-300 border-red-500 px-3 py-1">
                                 <LogOutIcon className="h-3 w-3 mr-1" />
                                 {isHost ? "End room" : "leave room"}
@@ -168,13 +188,15 @@ const Page = () => {
 
                             <Button variant="ghost" size="icon" onClick={() => {
                                 navigator.clipboard.writeText(params.id as string)
-                                toast.message("RoomID copied to clipboard", {
+                                toast.info("RoomID copied to clipboard", {
                                     style: {
-                                        backgroundColor: "#ffffff",
-                                        color: "#000000"
+                                        background: "#1E3A8A",
+                                        color: "#E0F2FE",
+                                        borderLeft: "5px solid #93C5FD",
                                     }
+
                                 })
-                                
+
                             }} className="rounded-full bg-[#09090b] hover:bg-[#2a3a56]">
                                 <Link className="h-4 w-4 text-blue-300" />
                             </Button>
@@ -199,6 +221,7 @@ const Page = () => {
                                     videoId={currentVData?.extractId as string}
                                     streamId={params.id as string}
                                     setIsPlaying={setIsPlaying}
+                                    isPlaying={isPlaying}
                                 />
                             </div>
 
@@ -228,24 +251,24 @@ const Page = () => {
                                 </div>
 
                                 {isAdding ? (
-                  <button
-                    disabled
-                    className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
-                  >
-                    <LoaderCircle
-                      className="h-5 w-5 animate-spin text-white"
-                      style={{ animation: "spin 1s linear infinite" }}
-                    />
-                    <span>Adding...</span>
-                  </button>
-                ) : (
-                  <Button
-                    onClick={handleAddVid}
-                    className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
-                  >
-                    Add Video
-                  </Button>
-                )}
+                                    <button
+                                        disabled
+                                        className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
+                                    >
+                                        <LoaderCircle
+                                            className="h-5 w-5 animate-spin text-white"
+                                            style={{ animation: "spin 1s linear infinite" }}
+                                        />
+                                        <span>Adding...</span>
+                                    </button>
+                                ) : (
+                                    <Button
+                                        onClick={handleAddVid}
+                                        className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/20 transition-all duration-300 flex items-center gap-2 rounded-2xl"
+                                    >
+                                        Add Video
+                                    </Button>
+                                )}
 
 
                             </div>

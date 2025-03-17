@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import axios from "axios"
+import axios, { AxiosResponse } from "axios"
 import { useSession } from "next-auth/react"
 import { Music, Plus, Users, ArrowRight, Radio, Sparkles, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
+
 
 const Page = () => {
   const router = useRouter()
@@ -57,8 +58,25 @@ const Page = () => {
         streamId,
         hostId: null,
       })
-      
-      router.push(`/room/${streamId}`)
+
+      axios.post(process.env.NEXT_API_BACKEND_URL!, {
+        streamId
+      }).then((res: AxiosResponse<any, any>) => {
+        if (res.data.message === "exist") {
+          router.push(`/room/${streamId}`)
+        }
+        if (res.data.message === "notexists") {
+          toast.error("Room not exists, please enter valid RoomID", {
+            style: {
+              background: "#8f0505",
+              color: "white",
+              borderLeft: "solid 8px #610404"
+            }
+          })
+          setIsJoining(false)
+        }
+      })
+
     } catch (error) {
       console.error("Error joining room:", error)
       setIsJoining(false)

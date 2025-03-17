@@ -4,7 +4,7 @@ import prisma from "./db";
 
 
 export const authOptions: NextAuthOptions = {
-    debug: true, 
+    debug: true,
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -13,53 +13,53 @@ export const authOptions: NextAuthOptions = {
     ],
 
     callbacks: {
-        async signIn({user}){
-            const existingUser = await prisma.user.findUnique({where:{email:user.email!}})
-            if(!existingUser){
+        async signIn({ user }) {
+            const existingUser = await prisma.user.findUnique({ where: { email: user.email! } })
+            if (!existingUser) {
                 await prisma.user.create({
-                    data:{
-                        email:user.email!,
-                        image:user.image!
+                    data: {
+                        email: user.email!,
+                        image: user.image!
                     }
                 })
             }
-            
+
             return true;
         }
         ,
-        async jwt({ user, token ,session,trigger}) {
+        async jwt({ user, token, session, trigger }) {
 
-           
+
 
             if (user) {
                 const dbUser = await prisma.user.findUnique({
-                  where: { email: user.email! },
+                    where: { email: user.email! },
                 });
-        
+
                 if (dbUser) {
-                  token.userId = dbUser.id;
-                  token.streamId = dbUser.streamId ?? null;
-                  token.host=null;
-                  token.hostId=null;
+                    token.userId = dbUser.id;
+                    token.streamId = dbUser.streamId ?? null;
+                    token.host = null;
+                    token.hostId = null;
                 }
 
-              }
+            }
 
-              if (trigger === "update") {
+            if (trigger === "update") {
                 token.streamId = session.streamId as string ?? null;
                 token.hostId = session.hostId as string ?? null;
-                token.host=session.host as string ??null;
+                token.host = session.host as string ?? null;
             }
             // console.log(token)
-              return token;
+            return token;
 
         },
         async session({ session, token }) {
             if (session.user && token.userId) {
                 session.user.id = token.userId as string
-                session.user.streamId=token.streamId as string|| null
-                session.user.hostId=token.hostId as string|| null
-                session.user.host=token.host as string|| null
+                session.user.streamId = token.streamId as string || null
+                session.user.hostId = token.hostId as string || null
+                session.user.host = token.host as string || null
             }
             return session
         },
