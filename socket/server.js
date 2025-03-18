@@ -16,8 +16,10 @@ app.use(cors({
 }))
 
 const redis = new Redis({
-    port: 6379,
-    host: "localhost",
+     port: 13940,
+    host: "redis-13940.c283.us-east-1-4.ec2.redns.redis-cloud.com",
+    username: "default",
+    password: "jHi9HQer9dgjWcVEmU7mL3FHQc3rSO9E",
 
 });
 

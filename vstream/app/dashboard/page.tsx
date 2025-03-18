@@ -60,7 +60,7 @@ const Page = () => {
         hostId: null,
       })
 
-      axios.post(process.env.NEXT_API_BACKEND_URL!, {
+      axios.post(process.env.NEXT_PUBLIC_BACKEND_URL!, {
         streamId
       }).then((res: AxiosResponse<ApiResponse>) => {
         if (res.data.message === "exist") {

@@ -126,6 +126,7 @@ const Page = () => {
         const finishedVideo = currentVData;
         // console.log(finishedVideo)
         videoCompleted(params.id as string, finishedVideo);
+        setIsPlaying(false)
         const updatedQueue = videoData.filter(video => video.id !== finishedVideo.id);
         setVideoData(updatedQueue)
         // console.log(updatedQueue[0])
