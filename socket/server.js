@@ -81,6 +81,9 @@ io.on("connection", (socket) => {
         console.log(`User ${socket.id} joining room: ${streamId}`);
         socket.join(streamId);
         socket.broadcast.to(streamId).emit("joining_tost_notification", username)
+        const rkey = `roomcnt:${streamId}`;
+        const rusercnt=await redis.get(rkey)
+        io.to(streamId).emit("room_cnt", rusercnt);
 
 
 
@@ -102,7 +105,7 @@ io.on("connection", (socket) => {
         try {
             await redis.del(`stream:${streamId}:queue`);
             await redis.del(`room:${streamId}`);
-
+            await redis.del(`roomcnt:${streamId}`)
             const voteKeys = await redis.keys(`stream:${streamId}:video:*:votes`);
             if (voteKeys.length > 0) {
                 await redis.del(...voteKeys);

@@ -20,3 +20,8 @@ export interface PlayerProps {
   isPlaying: boolean
 }
 
+export interface ApiResponse {
+  message: 'exist' | 'notexists';
+}
+
+

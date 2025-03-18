@@ -1,7 +1,7 @@
 import type React from "react"
 import { useRef, useEffect } from "react"
 import YouTube, { type YouTubePlayer } from "react-youtube"
-import { Play, Pause, Square, FastForward, Rewind } from "lucide-react"
+import { Play, Pause, FastForward, Rewind } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { controlByHost, removeVideoControllers, uVControlsListener } from "../utils/socket"
 import { PlayerProps } from "../utils/Types"
@@ -10,7 +10,7 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
   const playerRef = useRef<YouTubePlayer | null>(null)
 
   useEffect(() => {
-    uVControlsListener(playerRef, isHost)
+    uVControlsListener(playerRef, isHost,setIsPlaying)
     return () => {
       removeVideoControllers()
     }
@@ -36,13 +36,13 @@ const CustomYouTubePlayer: React.FC<PlayerProps> = ({ onStateChange, onVideoEnd,
     }
   }
 
-  const stopVideo = () => {
-    if (isHost && playerRef.current) {
-      playerRef.current.stopVideo()
-      controlByHost("stop", streamId)
-      setIsPlaying(false)
-    }
-  }
+  // const stopVideo = () => {
+  //   if (isHost && playerRef.current) {
+  //     playerRef.current.stopVideo()
+  //     controlByHost("stop", streamId)
+  //     setIsPlaying(false)
+  //   }
+  // }
 
   const forward10Seconds = () => {
     if (isHost && playerRef.current) {

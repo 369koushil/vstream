@@ -37,12 +37,12 @@ const Page = () => {
 
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            roomcnt(setTotalUser); // Call `roomcnt` after 2 seconds
-        }, 2000);
+            roomcnt(setTotalUser);
+        }, 1000);
 
         return () => {
-            clearTimeout(timeoutId); // Cleanup timeout on unmount
-            cleanUpSockets() // Cleanup socket listener
+            clearTimeout(timeoutId);
+            cleanUpSockets()
         };
     }, []);
 

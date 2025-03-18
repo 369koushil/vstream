@@ -48,14 +48,20 @@ export const controlByHost = (action: string, streamId: string) => {
 
 
 
-export const uVControlsListener = (playerRef: React.RefObject<YouTubePlayer>, isHost: boolean) => {
+export const uVControlsListener = (playerRef: React.RefObject<YouTubePlayer>, isHost: boolean,setIsPlaying:(val:boolean)=>void) => {
     // console.log("executing uvcontrollerlisnter fucntion")
     socket.on("video_control_user", (action: string) => {
         //   console.log("lisneing event uvcontol inside")
         if (!isHost && playerRef.current) {
             const currentTime = playerRef.current.getCurrentTime()
-            if (action === "play") playerRef.current.playVideo();
-            if (action === "pause") playerRef.current.pauseVideo();
+            if (action === "play"){
+                playerRef.current.playVideo();
+                setIsPlaying(true)
+            }
+            if (action === "pause"){
+                playerRef.current.pauseVideo();
+                setIsPlaying(false)
+            } 
             if (action === "stop") playerRef.current.stopVideo();
             if (action === "forward") playerRef.current.seekTo(Math.max(currentTime + 10, 0), true)
             if (action === "backward") playerRef.current.seekTo(Math.max(currentTime - 10, 0), true)

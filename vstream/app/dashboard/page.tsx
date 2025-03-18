@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
+import { ApiResponse } from "../utils/Types"
 
 
 const Page = () => {
@@ -27,7 +28,7 @@ const Page = () => {
     setIsCreating(true)
     try {
       const res = await axios.post("/api/streams", {
-        title: "hello wrold hello",
+        title: "random room",
       })
       // console.log(res.data)
       // console.log(res.data.newStream.id)
@@ -61,7 +62,7 @@ const Page = () => {
 
       axios.post(process.env.NEXT_API_BACKEND_URL!, {
         streamId
-      }).then((res: AxiosResponse<any, any>) => {
+      }).then((res: AxiosResponse<ApiResponse>) => {
         if (res.data.message === "exist") {
           router.push(`/room/${streamId}`)
         }
@@ -79,6 +80,13 @@ const Page = () => {
 
     } catch (error) {
       console.error("Error joining room:", error)
+      toast.error("Error occured please try again",{
+        style: {
+          background: "#8f0505",
+          color: "white",
+          borderLeft: "solid 8px #610404"
+        }
+      })
       setIsJoining(false)
     }
   }
