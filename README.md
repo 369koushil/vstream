@@ -1,4 +1,4 @@
-# 🎵 VStream - Collaborative Music Video Streaming Platform
+#  VStream - Collaborative Video Streaming Platform
 
 > **Watch and Listen Together in Real-Time!** - A synchronized video streaming platform where friends can collaborate on music playlists, vote for favorite tracks, and enjoy YouTube videos together in real-time.
 
